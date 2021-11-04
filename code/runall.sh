@@ -1,13 +1,34 @@
 #!/bin/bash
 
-
-
 # runall.sh
-#TODO: better path specification. while getopts with flags. Decide after batch file structure is settled
+
 
 # SETUP PATHS
 ROOT_DIR="../data/2021-11-01-illinois-batch1/"
 POOL_DIRS="$(echo pool{1..4})"
+
+
+#TODO: print times, auto print to log
+#TODO: better path specification. while getopts with flags. Decide after batch file structure is settled
+
+
+#TODO: Check paths. Creating 
+echo "The following input fastq files are identified:"
+
+for sub_dir in $POOL_DIRS;
+do
+    ls ${ROOT_DIR}${sub_dir}
+
+read -n 1 k <&1
+if [[ $k = n ]] ;
+then
+exit ERRCODE "Re-configure directories or delete files as needed!"
+elif [[ $k = y ]]; then
+echo "continuing"
+
+fi
+
+
 
 for thing in $POOL_DIRS;
 do
@@ -15,6 +36,7 @@ do
 done
 
 meta_out="./meta-tmp.csv"
+
 # Probably want to define variables here
 fastq_path=${input_dir}"00-fastq-110-only/"
 fastq_trimmed_path=${input_dir}"01-fastq-trimmed-110-only/"
@@ -47,7 +69,8 @@ then
     # Move outputs of trim-galore into the correct folder *.fq *.html *.txt
     for f1 in *.zip *.html *.txt *.fq
     do
-        f2=$(echo ${f1} | sed -e 's/[-ACTG]//g' | sed -e 's/__L00[0-9]//g')
+        # Remove adapter sequence in middle of file, also remove lane info from file name
+        f2=$(echo ${f1} | sed -e 's/[-ACTG]//g' | sed -e 's/__L00M//g')
         mv "${f1}" "${fastq_trimmed_path}${f2}"
     done
 
@@ -101,10 +124,16 @@ make_bedmethyl = False
 
 " > conf.conf
 
+
+# GEMBS PREPARATION AND CONSOLE OUTPUT
 gemBS prepare -c conf.conf -t meta.csv
+echo "gemBS will run the following commands:"
+gemBS --dry-run run
+# END GEMBS PREP/OUTPUT
+
 
 # MAPPING
-gemBS map
+parallel -S nebula-2, nebula-5 --nonall --workdir . gemBS map
 # END MAPPING
 
 
@@ -113,7 +142,6 @@ gemBS map
 gemBS call
 # END CALLING
 
-# Remove bcf files??
 
 # Extraction
 # Use awk skript here
