@@ -1,0 +1,12 @@
+
+./data/*
+*.fastq
+*.fasta
+*.fq
+*.gz
+*.bz
+*.zip
+*.RData
+*.RDS
+*.RDS
+*.rdata
