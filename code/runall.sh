@@ -1,18 +1,28 @@
 #!/bin/bash
 
+#TODO: Make default environment wgbs (after finishes running)
 # runall.sh
 
 
+# CONSTANTS
+RUN_SERVERS="nebula-4,nebula-5,nebula-7,nebula-9"
+
+
 # SETUP PATHS
+#TODO: Make this accept from getopts
 ROOT_DIR="../data/2021-11-01-illinois-batch1/"
-POOL_DIRS="$(echo pool{1..4})"
+POOL_DIRS="$(echo pool{1..2})"
 
+for pool in ${POOL_DIRS}
+do
+    echo "In the directory ${ROOT_DIR}${pool}/00-fastq/ there are the following files:"
+    ls ${ROOT_DIR}${pool}"/00-fastq/"
+    mkdir -p ${ROOT_DIR}${pool}"/01-fastq-trimmed/"
+done
 
+#TODO --joblog to parallel commands
 #TODO: print times, auto print to log
-#TODO: better path specification. while getopts with flags. Decide after batch file structure is settled
 
-
-#TODO: Check paths. Creating 
 echo "The following input fastq files are identified:"
 
 for sub_dir in $POOL_DIRS;
@@ -41,6 +51,10 @@ meta_out="./meta-tmp.csv"
 fastq_path=${input_dir}"00-fastq-110-only/"
 fastq_trimmed_path=${input_dir}"01-fastq-trimmed-110-only/"
 
+# SETUP DIRECTORIES
+# 
+
+#TODO: Make 
 mkdir -p ${fastq_trimmed_path}
 
 # Option to delete all from command line
@@ -52,18 +66,16 @@ mkdir -p ${fastq_trimmed_path}
 ls -1 ${fastq_path}*R1*.gz | uniq > LEFT
 ls -1 ${fastq_path}*R2*.gz | uniq > RIGHT
 
-# TODO: This is bottlenecked because cutadapt can only run on one core. Fine when processing multiple files, but annoying when just one.
 # 1. After trimming, rename files, then move them to appropriate dir
 # 2. Make conditional ()
 if [ -z "$(ls -A ${fastq_trimmed_path})" ]
 then
    echo "${fastq_trimmed_path} is empty, trimming files now."
-    # NODEFILE tells GNU parallel which servers it can use
-    # --link creates a mapping between the lines in LEFT and lines in RIGHT
-    # which is one line == one line (as opposed to pairwise combos)
+    # --link creates a mapping between the lines in LEFT and lines in RIGHT 
+    # (one-to-one instead of pairwise combinations)
     # the fourth : means read LEFT and RIGHT (don't treat as variable/expansion)
-    parallel --link \
-        trim_galore --fastqc --phred33 \
+    parallel --joblog ./log/log.out --link -S ${RUN_SERVERS} \
+        trim_galore --phred33 --cores 6 \
         --dont_gzip --paired {1} {2} :::: LEFT :::: RIGHT
 
     # Move outputs of trim-galore into the correct folder *.fq *.html *.txt
@@ -81,7 +93,7 @@ fi
 
 
 # BEGIN MAKE META FILE
-echo "barcode,dataset,end1,end2" > $meta_out
+echo "barcode,dataset,end1,end2" > ${pool}".meta.csv"
 for f in "${fastq_trimmed_path}"*val_1.fq
 do
     # f="../../data/something.csv"
@@ -106,7 +118,8 @@ bcf_dir = ${input_dir}03-calls
 extract_dir = ${input_dir}04-extract
 report_dir = ${input_dir}05-report
 
-memory = 60G
+# Large memory footprint, less so on CPUs
+memory = 80G
 cores = 8
 
 keep_logs = True
@@ -139,7 +152,7 @@ parallel -S nebula-2, nebula-5 --nonall --workdir . gemBS map
 
 # Calling
 #parallel -S nebula-3,nebula-5,nebula-7 --nonall ::: 'gemBS call'
-gemBS call
+parallel -S nebula-2, nebula-5 --nonall --workdir . gemBS map
 # END CALLING
 
 
