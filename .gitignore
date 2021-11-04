@@ -10,3 +10,7 @@
 *.RDS
 *.RDS
 *.rdata
+*.bam
+*.bcf
+*.vcf
+*.sam
