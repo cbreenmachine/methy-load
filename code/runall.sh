@@ -23,46 +23,39 @@ DATE_STR=$(date +"%y-%m-%d")
 
 # SETUP PATHS
 #TODO: Make this accept from getopts
-ROOT_DIR="../data/2021-11-01-illinois-batch1/"
+ROOT_DIR="../data/dummy/"
 POOL_SUB_DIRS="$(echo toy{1..2}/)" # be sure to have trailing slash
 
 for pool in ${POOL_SUB_DIRS}
 do
-    echo "Found these input files in ${ROOT_DIR}${pool}/00-fastq/"
-    ls ${ROOT_DIR}${pool}"/00-fastq/"
+    echo "Found these input files in ${ROOT_DIR}${pool}00-fastq/"
+    ls ${ROOT_DIR}${pool}"00-fastq/"
 
     echo "Creating directory"
-    mkdir -p -v ${ROOT_DIR}${pool}"/01-fastq-trimmed/"
+    mkdir -p -v ${ROOT_DIR}${pool}"01-fastq-trimmed/"
 done
 
 #TODO --joblog to parallel commands
-for sub_dir in $POOL_DIRS;
-do
-    ls ${ROOT_DIR}${sub_dir}
-
+echo "To continue running, hit y"
 read -n 1 k <&1
-if [[ $k = n ]] ;
-then
-exit ERRCODE "Re-configure directories or delete files as needed!"
-elif [[ $k = y ]]; then
-echo "continuing"
-
+if [[ $k = n ]] ; then
+  echo "Re-configure directories or delete files as needed!"
+elif [[ $k = y ]] ; then
+  echo "continuing"
 fi
 
 
-for pool in $POOL_DIRS;
+for pool in $POOL_SUB_DIRS;
 do
 echo "Working on ${pool}"
-meta_out="./${pool}-meta-tmp.csv" # name of meta file used in gemBS
-conf_out="./${pool}-conf.conf" # name of congiguration file used by gemBS
-fastq_path=${input_dir}${pool}"00-fastq/"
-fastq_trimmed_path=${input_dir}"01-fastq-trimmed/"
+meta_out="./$(echo ${pool%/})-meta-tmp.csv" # name of meta file used in gemBS
+conf_out="./$(echo ${pool%/})-conf.conf" # name of congiguration file used by gemBS
+fastq_path=${ROOT_DIR}${pool}"00-fastq/"
+fastq_trimmed_path=${ROOT_DIR}${pool}"01-fastq-trimmed/"
 
-
-#TODO: Make 
 mkdir -p ${fastq_trimmed_path}
 
-# Option to delete all from command line
+# TODO: Option to delete all from command line
 # ./runall.sh --from_scratch 
 # deletes all intermediate files
 
@@ -79,17 +72,18 @@ then
     # --link creates a mapping between the lines in LEFT and lines in RIGHT 
     # (one-to-one instead of pairwise combinations)
     # the fourth ':' means cat LEFT and RIGHT (don't treat as variable/expansion)
-    parallel --joblog ./log/log.out --link -S ${RUN_SERVERS} \
-        trim_galore --phred33 --cores 6 --output_dir ${fastq_trimmed_path} \
+    # 
+    parallel  --link -S ${RUN_SERVERS} \
+        trim_galore --phred33 --cores 6 \
         --dont_gzip --paired {1} {2} :::: LEFT :::: RIGHT
 
     # (DEPRECATED) Move outputs of trim-galore into the correct folder *.fq *.html *.txt
-    #for f1 in *.zip *.html *.txt *.fq
-    #do
+    for f1 in *.zip *.html *.txt *.fq
+    do
         # Remove adapter sequence in middle of file, also remove lane info from file name
-    #    f2=$(echo ${f1} | sed -e 's/[-ACTG]//g' | sed -e 's/__L00M//g')
-    #    mv "${f1}" "${fastq_trimmed_path}${f2}"
-    #done
+        f2=$(echo ${f1} | sed -e 's/[-ACTG]//g' | sed -e 's/__L00M//g')
+        mv "${f1}" "${fastq_trimmed_path}${f2}"
+    done
 
 else
    echo "${fastq_trimmed_path} is full (no need to trim/fastqc files); delete if you need to re-trim!"
@@ -98,7 +92,7 @@ fi
 
 
 # BEGIN MAKE META FILE
-echo "barcode,dataset,end1,end2" > ${pool}".meta.csv"
+echo "barcode,dataset,end1,end2" > "$(echo ${pool%/}).meta.csv"
 for f in "${fastq_trimmed_path}"*val_1.fq
 do
     # f="../../data/something.csv"
@@ -115,8 +109,7 @@ done
 echo "
 # Needs to be run from wgbs-load/code/ directory!
 # Needs to know about reference genome and index
-reference = ../../reference/GRCh38_latest_genomic.fna
-index_dir = ../../reference/gembs-index/
+index_dir = ../../reference/ENCODE/gembs-index/
 
 sequence_dir = ${ROOT_DIR}${pool}01-fastq-trimmed
 bam_dir = ${ROOT_DIR}${pool}02-mapping
@@ -154,11 +147,11 @@ parallel -S ${RUN_SERVERS} --joblog ${ROOT_DIR}${pool}map.log --nonall --workdir
 
 
 # Calling
-parallel -S ${RUN_SERVERS} --joblog ${ROOT_DIR}${pool}call.log --nonall --workdir . gemBS map
+parallel -S ${RUN_SERVERS} --joblog ${ROOT_DIR}${pool}call.log --nonall --workdir . gemBS call
 # END CALLING
 
 
 # Extraction
 # Use awk skript here
 
-done # END LOOP THROUGH SUB DIRECTORIES
+done 
