@@ -1,8 +1,0 @@
-[
-  {
-    "id": "bcf_mergecall_110",
-    "command": "call --merge",
-    "args": "--barcode 110 --no-md5 --no-index",
-    "caller": "cebreen@nebula-9.586454"
-  }
-]
