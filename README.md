@@ -36,9 +36,9 @@ There are three "tiers" of data that we run throught the pipeline. The first, lo
 As much as possible, we use one conda environment, which can be created on your device with
 `conda create --name load --file=load.yml`
 
-May be migrating to a different environment...
-
 Most code is run on a cluster of servers which run [Scientific Linux](https://en.wikipedia.org/wiki/Scientific_Linux) 7.9 (Nitrogen), which is based on Red Hat.
+
+Environments are managed through [MiniConda](https://docs.conda.io/en/latest/miniconda.html).
 
 # Methods
 

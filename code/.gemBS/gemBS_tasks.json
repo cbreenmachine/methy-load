@@ -1,8 +1,8 @@
 [
   {
-    "id": "single_map_110",
-    "command": "map",
-    "args": "--barcode 110 --no-md5",
-    "caller": "cebreen@nebula-10.1983666"
+    "id": "bcf_mergecall_110",
+    "command": "call --merge",
+    "args": "--barcode 110 --no-md5 --no-index",
+    "caller": "cebreen@nebula-9.586454"
   }
 ]
