@@ -18,13 +18,13 @@
 
 #TODO: Make default environment wgbs (after finishes running)
 # CONSTANTS
-RUN_SERVERS="nebula-4,nebula-7"
+RUN_SERVERS="nebula-2,nebula-3,nebula-4"
 DATE_STR=$(date +"%y-%m-%d")
 
 # SETUP PATHS
 #TODO: Make this accept from getopts
-ROOT_DIR="../data/dummy/"
-POOL_SUB_DIRS="$(echo toy{1..2}/)" # be sure to have trailing slash
+ROOT_DIR="../data/2021-11-01-illinois-batch1/"
+POOL_SUB_DIRS="$(echo group{1..1}/)" # be sure to have trailing slash
 
 for pool in ${POOL_SUB_DIRS}
 do
@@ -48,8 +48,8 @@ fi
 for pool in $POOL_SUB_DIRS;
 do
 echo "Working on ${pool}"
-meta_out="./$(echo ${pool%/})-meta-tmp.csv" # name of meta file used in gemBS
-conf_out="./$(echo ${pool%/})-conf.conf" # name of congiguration file used by gemBS
+meta_out="./$(echo ${pool%/}).meta.csv" # name of meta file used in gemBS
+conf_out="./$(echo ${pool%/}).conf" # name of congiguration file used by gemBS
 fastq_path=${ROOT_DIR}${pool}"00-fastq/"
 fastq_trimmed_path=${ROOT_DIR}${pool}"01-fastq-trimmed/"
 
@@ -61,8 +61,8 @@ mkdir -p ${fastq_trimmed_path}
 
 # trim files (conditional on them not being trimmed yet)
 # Consider piping file names to TMP and then using parallel afterwords
-ls -1 ${fastq_path}*R1*.gz | uniq > LEFT
-ls -1 ${fastq_path}*R2*.gz | uniq > RIGHT
+ls -1 ${fastq_path}*R1*.fq | uniq > LEFT
+ls -1 ${fastq_path}*R2*.fq | uniq > RIGHT
 
 # 1. After trimming, rename files, then move them to appropriate dir
 # 2. Make conditional ()
@@ -72,18 +72,18 @@ then
     # --link creates a mapping between the lines in LEFT and lines in RIGHT 
     # (one-to-one instead of pairwise combinations)
     # the fourth ':' means cat LEFT and RIGHT (don't treat as variable/expansion)
-    # 
-    parallel  --link -S ${RUN_SERVERS} \
-        trim_galore --phred33 --cores 6 \
+    parallel --link -S ${RUN_SERVERS} --workdir . \
+        trim_galore --phred33 --cores 6 --output_dir ${fastq_trimmed_path} \
         --dont_gzip --paired {1} {2} :::: LEFT :::: RIGHT
 
     # (DEPRECATED) Move outputs of trim-galore into the correct folder *.fq *.html *.txt
-    for f1 in *.zip *.html *.txt *.fq
-    do
+    #for f1 in *.txt *.fq # add other extensions if doing fastqc
+    #do
         # Remove adapter sequence in middle of file, also remove lane info from file name
-        f2=$(echo ${f1} | sed -e 's/[-ACTG]//g' | sed -e 's/__L00M//g')
-        mv "${f1}" "${fastq_trimmed_path}${f2}"
-    done
+        # What the hell is happening with these paths....?
+     #   f2=$(echo ${f1} | sed -e 's/[-ACTG]//g' | sed -e 's/__L00M//g')
+      #  mv "${f1}" "${fastq_trimmed_path}${f2}"
+    #done
 
 else
    echo "${fastq_trimmed_path} is full (no need to trim/fastqc files); delete if you need to re-trim!"
@@ -92,15 +92,15 @@ fi
 
 
 # BEGIN MAKE META FILE
-echo "barcode,dataset,end1,end2" > "$(echo ${pool%/}).meta.csv"
+echo "barcode,dataset,end1,end2" > ${meta_out}
 for f in "${fastq_trimmed_path}"*val_1.fq
 do
     # f="../../data/something.csv"
     # --> ${f##*/} is something.csv
     barcode=$(echo ${f##*/} | cut -d "_" -f 1 | sed -E 's/R/s/')
-    dataset=$(echo ${f##*/} | sed -E 's/val_[1-2].fq.gz//')
+    dataset=$(echo ${f##*/} | sed -E 's/val_[1-2].fq//' | sed -E 's/_R1_//')
     file1=$(echo ${f##*/})
-    file2=$(echo ${f##*/} | sed -E 's/R1_001/R2_001/' | sed -E 's/val_1/val_2/')
+    file2=$(echo ${f##*/} | sed -E 's/R1/R2/' | sed -E 's/val_1/val_2/')
     echo $barcode","$dataset","$file1","$file2 >> ${meta_out}
 done
 
@@ -109,7 +109,9 @@ done
 echo "
 # Needs to be run from wgbs-load/code/ directory!
 # Needs to know about reference genome and index
-index_dir = ../../reference/ENCODE/gembs-index/
+reference = ../../reference/GENCODE/h38_no_alt.fa
+index_dir = ../../reference/GENCODE/gembs-index/
+
 
 sequence_dir = ${ROOT_DIR}${pool}01-fastq-trimmed
 bam_dir = ${ROOT_DIR}${pool}02-mapping
@@ -150,7 +152,7 @@ parallel -S ${RUN_SERVERS} --joblog ${ROOT_DIR}${pool}map.log --nonall --workdir
 parallel -S ${RUN_SERVERS} --joblog ${ROOT_DIR}${pool}call.log --nonall --workdir . gemBS call
 # END CALLING
 
-
+gemBS report
 # Extraction
 # Use awk skript here
 

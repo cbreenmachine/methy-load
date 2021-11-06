@@ -1,3 +1,2 @@
-../data/dummy/toy1/00-fastq/dummy1_R2.fq.gz
-../data/dummy/toy1/00-fastq/dummy1_R2_val_2.fq.gz
-../data/dummy/toy1/00-fastq/dummy2_R2.fq.gz
+../data/dummy/toy2/00-fastq/dummy1_R2.fq
+../data/dummy/toy2/00-fastq/dummy2_R2.fq
