@@ -8,7 +8,6 @@
 # 1. Trimming using _trim_galore and cutadapt
 # 2. gemBS mapping
 # 3. gemBS calling
-# TODO 4:
 
 # Practical considerations
 # 1. gemBS is a high memory pipeline--stick to the higher memory servers
@@ -24,7 +23,7 @@ DATE_STR=$(date +"%y-%m-%d")
 # SETUP PATHS
 #TODO: Make this accept from getopts
 ROOT_DIR="../data/2021-11-01-illinois-batch1/"
-POOL_SUB_DIRS="$(echo group{1..1}/)" # be sure to have trailing slash
+POOL_SUB_DIRS="$(echo group{2..3}/)" # be sure to have trailing slash
 
 for pool in ${POOL_SUB_DIRS}
 do
@@ -35,7 +34,6 @@ do
     mkdir -p -v ${ROOT_DIR}${pool}"01-fastq-trimmed/"
 done
 
-#TODO --joblog to parallel commands
 echo "To continue running, hit y"
 read -n 1 k <&1
 if [[ $k = n ]] ; then
@@ -61,8 +59,8 @@ mkdir -p ${fastq_trimmed_path}
 
 # trim files (conditional on them not being trimmed yet)
 # Consider piping file names to TMP and then using parallel afterwords
-ls -1 ${fastq_path}*R1*.fq | uniq > LEFT
-ls -1 ${fastq_path}*R2*.fq | uniq > RIGHT
+ls -1 ${fastq_path}*R1*.fastq.gz | uniq > LEFT
+ls -1 ${fastq_path}*R2*.fastq.gz | uniq > RIGHT
 
 # 1. After trimming, rename files, then move them to appropriate dir
 # 2. Make conditional ()
@@ -72,7 +70,7 @@ then
     # --link creates a mapping between the lines in LEFT and lines in RIGHT 
     # (one-to-one instead of pairwise combinations)
     # the fourth ':' means cat LEFT and RIGHT (don't treat as variable/expansion)
-    parallel --link -S ${RUN_SERVERS} --workdir . \
+    parallel --link -S ${RUN_SERVERS} --workdir . --joblog ${ROOT_DIR}${pool}trim.log \
         trim_galore --phred33 --cores 6 --output_dir ${fastq_trimmed_path} \
         --dont_gzip --paired {1} {2} :::: LEFT :::: RIGHT
 
