@@ -23,7 +23,7 @@ DATE_STR=$(date +"%y-%m-%d")
 # SETUP PATHS
 #TODO: Make this accept from getopts
 ROOT_DIR="../data/2021-11-01-illinois-batch1/"
-POOL_SUB_DIRS="$(echo group{2..3}/)" # be sure to have trailing slash
+POOL_SUB_DIRS="$(echo group{2..4}/)" # be sure to have trailing slash
 
 for pool in ${POOL_SUB_DIRS}
 do
@@ -70,7 +70,7 @@ then
     # --link creates a mapping between the lines in LEFT and lines in RIGHT 
     # (one-to-one instead of pairwise combinations)
     # the fourth ':' means cat LEFT and RIGHT (don't treat as variable/expansion)
-    parallel --link -S ${RUN_SERVERS} --workdir . --joblog ${ROOT_DIR}${pool}trim.log \
+    parallel --link -S ${RUN_SERVERS} --workdir . --joblog ${ROOT_DIR}${pool}${DATE_STR}trim.log \
         trim_galore --phred33 --cores 6 --output_dir ${fastq_trimmed_path} \
         --dont_gzip --paired {1} {2} :::: LEFT :::: RIGHT
 
@@ -142,12 +142,12 @@ gemBS --dry-run run
 
 
 # MAPPING
-parallel -S ${RUN_SERVERS} --joblog ${ROOT_DIR}${pool}map.log --nonall --workdir . gemBS map
+parallel -S ${RUN_SERVERS} --joblog ${ROOT_DIR}${pool}${DATE_STR}map.log --nonall --workdir . gemBS map
 # END MAPPING
 
 
 # Calling
-parallel -S ${RUN_SERVERS} --joblog ${ROOT_DIR}${pool}call.log --nonall --workdir . gemBS call
+parallel -S ${RUN_SERVERS} --joblog ${ROOT_DIR}${pool}${DATE_STR}call.log --nonall --workdir . gemBS call
 # END CALLING
 
 gemBS report

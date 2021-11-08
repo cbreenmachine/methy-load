@@ -5,7 +5,7 @@ This repository contains the scripts used to align and process whole-genome bisu
 
 # Organization
 
-Data is coming in "pools" of five samples. The structure of the data directory reflects how we received the data. As of November 4, 2021, we've recieved 20 samples (four pools of five).
+Data is coming in pools of 20 and groups of of five samples. The structure of the data directory reflects how we received the data. As of November 4, 2021, we've recieved 20 samples (four pools of five).
 
 This is also tracked in the
 
@@ -43,3 +43,7 @@ Environments are managed through [MiniConda](https://docs.conda.io/en/latest/min
 # Methods
 
 To process we use the [gemBS pipeline](https://github.com/heathsc/gemBS-rs), with some checking with [bismark](https://www.bioinformatics.babraham.ac.uk/projects/bismark/). We also use [GNU parallel](https://www.gnu.org/software/parallel/) whenever possible.
+
+# References
+
+Organization of this repository is based in part on (that bioinformatics paper).
