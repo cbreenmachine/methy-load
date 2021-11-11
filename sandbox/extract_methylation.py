@@ -3,13 +3,6 @@
 # extract_methylation.py
 # Takes .bcf output from gemBS pipeline and outputs a tsv
 
-# Data
-# Here's one line from an example bcf file (split over three lines):
-# chrZZ    POS   .       G       .       QUAL      PASS    CX=TTGGT        
-# GT:FT:DP:MQ:GQ:QD:GL:MC8:AMQ:CS:CG:CX   
-# Some_other_stuff:     0,0,13,0,4,0,0,0    :some_other_stuff
-# These eight numbers are 
-
 # In MC8
 # If the reference nt is 'C', then the number of unmethylated reads are #T (methylated is #C)
 # If the reference nt is 'G', then the number of unmethylated reads are #A (methylated is #G)
@@ -17,19 +10,24 @@
 # Considerations
 # Coordinate system
 #   1. vcf/bcf files use a 1-based coorinate system with inclusive bounds.
-#       this means that a CpG on the first two positions would have POS
-#   2. .BED files use 0-based 
-
+#       this means that a CpG on the first two positions would have POS=(1,2)
+#   2. BED files are zero-based so would have coordinates POS=(0,2)
 # Output:
 #   A (CSV or TSV or BED file)? Start with CSV and then move from there
 
-
+#TODO coverage extracted from non-informative 
+#TODO make methylation function just accept dictionary as input...?
+#TODO coordinates to output file (may need zero or one based correction)
+#TODO does DMRseq want coverage informative or coverage non-informative?
+#TODO allow filtering by chromosome?  
 #TODO include C context (currently only considering CpG on )
-#TODO multiple output file supports
+#TODO multiple output file supports (CSV, ENCODE style BED)
 
 import argparse
 import time
 from pysam import VariantFile
+import itertools
+import csv
 
 
 def get_field_dic(record):
@@ -57,19 +55,56 @@ def get_methylation_estimate(mc8, strand):
         unmethylated = mc8[4] # Number As
     return(methylated, unmethylated)
 
-if __name__ == '__main__':
-    bcf_in = VariantFile("101.bcf")  # auto-detect input format
-# The things in rec.format
-# GT FT DP MQ GQ QD GL MC8 AMQ CS CG CX
+def clean_line(rec):
+    """subsets a record to give us what we want
+    
+    Do we want the record, a dictionary, both??
+    """
+    return(None)
 
-for rec in bcf_in.fetch('chr1', 1000000, 1100000):
-    d = get_field_dic(rec)
-    if d['CG'] == 'Y':
-        methylated, unmethylated = get_methylation_estimate(d['MC8'], d['CS'])
-        print(methylated / (methylated + unmethylated))
-        #TODO handle division by zero--just means there's a CpG site with no coverage!!
-        #TODO coverage extracted from non-informative 
-        #TODO make methylation function just accept dictionary as input...?
-    
-    
-        
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(description = "Takes a list of input files? Or Idrectory...TBD")
+    parser.add_argument("--input_file", default = "./101.bcf")
+    parser.add_argument("--output_dir", default = "./extract_output/")
+    parser.add_argument("--merge_strands", action = "store_true")
+
+    args = parser.parse_args()
+
+    infile = VariantFile("101.bcf")
+    csv_out_name = args.input_file.replace('.bcf', '.csv')
+    ofile = open(csv_out_name, "w")
+
+    # Column names for ouptut
+    writer = csv.writer(ofile)
+    writer.writerow(["chr", "pos", "reference", "call", "methylated", "unmethylated", "strand"])
+
+    # The things in rec.format
+    # GT FT DP MQ GQ QD GL MC8 AMQ CS CG CX
+
+    # Iterator
+    I = infile.fetch('chr1', 100000, 110000, threads=4)
+
+    # Iterate two records at a time if merging...
+    for rec1, rec2 in itertools.zip_longest(*[I]*2):
+
+        d1 = get_field_dic(rec1)
+        d2 = get_field_dic(rec2)
+
+        # rec2 should be the base. Is it CpG? Then do the conditional tests
+        # Draw it out
+
+        if (rec2.pos - rec1.pos == 1 and d1['CG'] == 'Y' 
+            and d2['CG'] == 'Y' and True):
+
+        print([rec1.pos, rec2.pos])
+            methylated, unmethylated = get_methylation_estimate(d['MC8'], d['CS']) 
+            # Pack the information we want to write out into a tuple
+            cleaned = [rec1.contig, rec1.pos, rec1.ref, d['GT'], methylated, unmethylated, d['CS']]
+            # Open/create writer and then write to output file
+            writer = csv.writer(ofile)
+            writer.writerow(cleaned)
+            last_cleaned = cleaned
+
+    ofile.close()
