@@ -19,19 +19,28 @@
 # CONSTANTS
 RUN_SERVERS="nebula-2,nebula-3,nebula-4"
 DATE_STR=$(date +"%y-%m-%d")
+MY_HOME=$(pwd)
 
 # SETUP PATHS
 #TODO: Make this accept from getopts
-ROOT_DIR="../data/2021-11-01-illinois-batch1/"
-POOL_SUB_DIRS="$(echo group{2..4}/)" # be sure to have trailing slash
+ROOT_DIR="../data/2021-11-03-batch01/pool01/"
+POOL_SUB_DIRS="$(echo group{1..4}/)" # be sure to have trailing slash
 
-for pool in ${POOL_SUB_DIRS}
-do
-    echo "Found these input files in ${ROOT_DIR}${pool}00-fastq/"
-    ls ${ROOT_DIR}${pool}"00-fastq/"
+FASTQ_PATH="00-fastq/"
+FASTQ_TRIMMED_PATH="01-fastq-trimmed/"
+META_OUT="./meta.csv"
+CONF_OUT="./conf.conf" 
 
-    echo "Creating directory"
-    mkdir -p -v ${ROOT_DIR}${pool}"01-fastq-trimmed/"
+for pool in ${POOL_SUB_DIRS}; do
+# Functions are run in batch/pool/group/
+# This directory contains 00-fastq
+  cd ${ROOT_DIR}${pool}
+  echo "Found these input files in ${ROOT_DIR}${pool} :"
+  ls 00-fastq
+  echo "Creating ${FASTQ_TRIMMED_PATH} directory"
+  mkdir -p -v "${FASTQ_TRIMMED_PATH}"
+  printf "\n" 
+  cd ${MY_HOME}
 done
 
 echo "To continue running, hit y"
@@ -45,53 +54,42 @@ fi
 
 for pool in $POOL_SUB_DIRS;
 do
+cd ${ROOT_DIR}${pool}
 echo "Working on ${pool}"
-meta_out="./$(echo ${pool%/}).meta.csv" # name of meta file used in gemBS
-conf_out="./$(echo ${pool%/}).conf" # name of congiguration file used by gemBS
-fastq_path=${ROOT_DIR}${pool}"00-fastq/"
-fastq_trimmed_path=${ROOT_DIR}${pool}"01-fastq-trimmed/"
+#meta_out="./$(echo ${pool%/}).meta.csv" # name of meta file used in gemBS
+#conf_out="./$(echo ${pool%/}).conf" # name of congiguration file used by gemBS
+#fastq_path=${ROOT_DIR}${pool}"00-fastq/"
+#fastq_trimmed_path=${ROOT_DIR}${pool}"01-fastq-trimmed/"
 
-mkdir -p ${fastq_trimmed_path}
-
-# TODO: Option to delete all from command line
-# ./runall.sh --from_scratch 
-# deletes all intermediate files
+mkdir -p ${FASTQ_TRIMMED_PATH}
 
 # trim files (conditional on them not being trimmed yet)
 # Consider piping file names to TMP and then using parallel afterwords
-ls -1 ${fastq_path}*R1*.fastq.gz | uniq > LEFT
-ls -1 ${fastq_path}*R2*.fastq.gz | uniq > RIGHT
+ls -1 ${FASTQ_PATH}*R1*.fastq.gz | uniq > LEFT
+ls -1 ${FASTQ_PATH}*R2*.fastq.gz | uniq > RIGHT
 
 # 1. After trimming, rename files, then move them to appropriate dir
 # 2. Make conditional ()
-if [ -z "$(ls -A ${fastq_trimmed_path})" ]
+if [ -z "$(ls -A ${FASTQ_TRIMMED_PATH})" ]
 then
-   echo "${fastq_trimmed_path} is empty, trimming files now."
+   echo "${FASTQ_TRIMMED_PATH} is empty, trimming files now."
     # --link creates a mapping between the lines in LEFT and lines in RIGHT 
     # (one-to-one instead of pairwise combinations)
     # the fourth ':' means cat LEFT and RIGHT (don't treat as variable/expansion)
-    parallel --link -S ${RUN_SERVERS} --workdir . --joblog ${ROOT_DIR}${pool}${DATE_STR}trim.log \
-        trim_galore --phred33 --cores 6 --output_dir ${fastq_trimmed_path} \
+    parallel --dry-run --link -S ${RUN_SERVERS} --workdir . --joblog ${DATE_STR}-trim.log \
+        trim_galore --phred33 --cores 6 --output_dir ${FASTQ_TRIMMED_PATH} \
         --dont_gzip --paired {1} {2} :::: LEFT :::: RIGHT
-
-    # (DEPRECATED) Move outputs of trim-galore into the correct folder *.fq *.html *.txt
-    #for f1 in *.txt *.fq # add other extensions if doing fastqc
-    #do
-        # Remove adapter sequence in middle of file, also remove lane info from file name
-        # What the hell is happening with these paths....?
-     #   f2=$(echo ${f1} | sed -e 's/[-ACTG]//g' | sed -e 's/__L00M//g')
-      #  mv "${f1}" "${fastq_trimmed_path}${f2}"
-    #done
-
 else
-   echo "${fastq_trimmed_path} is full (no need to trim/fastqc files); delete if you need to re-trim!"
+   echo "${FASTQ_TRIMMED_PATH} is full (no need to trim/fastqc files); delete if you need to re-trim!"
 fi
+
+rm LEFT RIGHT
 # END TRIMMING SECTION
 
 
 # BEGIN MAKE META FILE
-echo "barcode,dataset,end1,end2" > ${meta_out}
-for f in "${fastq_trimmed_path}"*val_1.fq
+echo "barcode,dataset,end1,end2" > ${META_OUT}
+for f in "${FASTQ_TRIMMED_PATH}"*val_1.fq
 do
     # f="../../data/something.csv"
     # --> ${f##*/} is something.csv
@@ -99,23 +97,22 @@ do
     dataset=$(echo ${f##*/} | sed -E 's/val_[1-2].fq//' | sed -E 's/_R1_//')
     file1=$(echo ${f##*/})
     file2=$(echo ${f##*/} | sed -E 's/R1/R2/' | sed -E 's/val_1/val_2/')
-    echo $barcode","$dataset","$file1","$file2 >> ${meta_out}
+    echo $barcode","$dataset","$file1","$file2 >> ${META_OUT}
 done
+# END MAKE META FILE
 
-
-# make configuration file
+# BEGIN MAKE CONFIGURATION FILE
 echo "
 # Needs to be run from wgbs-load/code/ directory!
 # Needs to know about reference genome and index
-reference = ../../reference/GENCODE/h38_no_alt.fa
-index_dir = ../../reference/GENCODE/gembs-index/
+reference = ../../../../../reference/GENCODE/h38_no_alt.fa
+index_dir = ../../../../../reference/GENCODE/gembs-index/
 
-
-sequence_dir = ${ROOT_DIR}${pool}01-fastq-trimmed
-bam_dir = ${ROOT_DIR}${pool}02-mapping
-bcf_dir = ${ROOT_DIR}${pool}03-calls
-extract_dir = ${ROOT_DIR}${pool}04-extract
-report_dir = ${ROOT_DIR}${pool}05-report
+sequence_dir = 01-fastq-trimmed
+bam_dir = 02-mapping
+bcf_dir = 03-calls
+extract_dir = 04-extract
+report_dir = 05-report
 
 # Large memory footprint, less so on CPUs
 memory = 80G
@@ -130,28 +127,30 @@ left_trim = 0,0
 make_snps = False
 make_cpg = False
 make_non_cpg = False
-make_bedmethyl = False
+make_bedmethyl = False" > ${CONF_OUT}
+# END MAKE CONFIGURATION FILE
 
-" > ${conf_out}
 
 # GEMBS PREPARATION AND CONSOLE OUTPUT
-gemBS prepare -c ${conf_out} -t ${meta_out}
+gemBS prepare -c ${CONF_OUT} -t ${META_OUT}
 echo "gemBS will run the following commands:"
 gemBS --dry-run run
 # END GEMBS PREP/OUTPUT
 
 
 # MAPPING
-parallel -S ${RUN_SERVERS} --joblog ${ROOT_DIR}${pool}${DATE_STR}map.log --nonall --workdir . gemBS map
+parallel --dry-run -S ${RUN_SERVERS} --joblog ${DATE_STR}-map.log --nonall --workdir . gemBS map
 # END MAPPING
 
 
 # Calling
-parallel -S ${RUN_SERVERS} --joblog ${ROOT_DIR}${pool}${DATE_STR}call.log --nonall --workdir . gemBS call
+parallel --dry-run -S ${RUN_SERVERS} --joblog ${DATE_STR}-call.log --nonall --workdir . gemBS call
 # END CALLING
 
 gemBS report
-# Extraction
+
+#TODO: call extraction_...py
 # Use awk skript here
 
+cd ${MY_HOME}
 done 
