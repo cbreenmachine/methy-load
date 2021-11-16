@@ -24,13 +24,10 @@ infile = sys.stdin
 outfile = sys.stdout
 
 my_writer = csv.writer(outfile,delimiter='\t')
-my_writer.writerow(["chr", "pos", "something"])
+my_writer.writerow(["chr", "pos", "reference", "context", "strand", "methylated", "unmethylated"])
 
 for line in infile:
     fields_list = line.split() # coming in as tab-separated
     mc8 = [int(x) for x in fields_list[5].split(",")] # grab read counts as list of integers
     m, um = get_methylation_estimate(mc8, fields_list[4])
-    my_writer.writerow(fields_list[0:5] + [m, um])
-
-
-
+    my_writer.writerow(fields_list[0:3] + ["CpG", fields_list[4]] + [m, um])
