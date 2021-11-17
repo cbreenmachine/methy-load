@@ -23,18 +23,20 @@ MY_HOME=$(pwd)
 
 # SETUP PATHS
 #TODO: Make this accept from getopts
-ROOT_DIR="../data/2021-11-03-batch01/pool01/"
-POOL_SUB_DIRS="$(echo group{1..4}/)" # be sure to have trailing slash
+#ROOT_DIR="group0{1..4}/"
+POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool05-group0{1..4}/)" # be sure to have trailing slash
 
 FASTQ_PATH="00-fastq/"
 FASTQ_TRIMMED_PATH="01-fastq-trimmed/"
+CALLS_PATH="03-calls/"
+EXTRACT_PATH="04-extract/"
 META_OUT="./meta.csv"
 CONF_OUT="./conf.conf" 
 
 for pool in ${POOL_SUB_DIRS}; do
 # Functions are run in batch/pool/group/
 # This directory contains 00-fastq
-  cd ${ROOT_DIR}${pool}
+  cd ${pool}
   echo "Found these input files in ${ROOT_DIR}${pool} :"
   ls 00-fastq
   echo "Creating ${FASTQ_TRIMMED_PATH} directory"
@@ -54,14 +56,12 @@ fi
 
 for pool in $POOL_SUB_DIRS;
 do
-cd ${ROOT_DIR}${pool}
+cd ${pool}
 echo "Working on ${pool}"
 #meta_out="./$(echo ${pool%/}).meta.csv" # name of meta file used in gemBS
 #conf_out="./$(echo ${pool%/}).conf" # name of congiguration file used by gemBS
 #fastq_path=${ROOT_DIR}${pool}"00-fastq/"
 #fastq_trimmed_path=${ROOT_DIR}${pool}"01-fastq-trimmed/"
-
-mkdir -p ${FASTQ_TRIMMED_PATH}
 
 # trim files (conditional on them not being trimmed yet)
 # Consider piping file names to TMP and then using parallel afterwords
@@ -145,9 +145,30 @@ parallel --dry-run -S ${RUN_SERVERS} --joblog ${DATE_STR}-map.log --nonall --wor
 
 # Calling
 parallel --dry-run -S ${RUN_SERVERS} --joblog ${DATE_STR}-call.log --nonall --workdir . gemBS call
+gemBS report
 # END CALLING
 
-gemBS report
+# EXTRACT
+
+mkdir -p -v "${EXTRACT_PATH}"
+if [ -z "$(ls -A ${EXTRACT_PATH})" ] ;
+then
+    echo "${EXTRACT_PATH} is empty, extracting methylation now."
+
+    # bcfs we want are in format 123.bcf
+    ls -1 ${CALLS_PATH}???.bcf > INPUT
+    # Pipes needed since there are '/' in the two variables
+    ls -1 ${CALLS_PATH}???.bcf | sed -E 's/bcf/tsv/' | sed "s|$CALLS_PATH|$EXTRACT_PATH|g" > OUTPUT
+  
+    parallel --link --workdir . --joblog ${DATE_STR}-extract.log \
+        ./extract.sh {1} {2} :::: INPUT :::: OUTPUT
+else
+   echo "${EXTRACT_PATH} is full (no need to extract methylation); delete if you need to!"
+fi
+
+
+
+
 
 #TODO: call extraction_...py
 # Use awk skript here
