@@ -17,7 +17,7 @@
 
 #TODO: Make default environment wgbs (after finishes running)
 # CONSTANTS
-RUN_SERVERS="nebula-2,nebula-3,nebula-4"
+RUN_SERVERS="nebula-5,nebula-6,nebula-7"
 DATE_STR=$(date +"%y-%m-%d")
 MY_HOME=$(pwd)
 
@@ -76,7 +76,7 @@ then
     # --link creates a mapping between the lines in LEFT and lines in RIGHT 
     # (one-to-one instead of pairwise combinations)
     # the fourth ':' means cat LEFT and RIGHT (don't treat as variable/expansion)
-    parallel --dry-run --link -S ${RUN_SERVERS} --workdir . --joblog ${DATE_STR}-trim.log \
+    parallel --link -S ${RUN_SERVERS} --workdir . --joblog ${DATE_STR}-trim.log \
         trim_galore --phred33 --cores 6 --output_dir ${FASTQ_TRIMMED_PATH} \
         --dont_gzip --paired {1} {2} :::: LEFT :::: RIGHT
 else
@@ -105,8 +105,8 @@ done
 echo "
 # Needs to be run from wgbs-load/code/ directory!
 # Needs to know about reference genome and index
-reference = ../../../../../reference/GENCODE/h38_no_alt.fa
-index_dir = ../../../../../reference/GENCODE/gembs-index/
+reference = ../../../../reference/GENCODE/h38_no_alt.fa
+index_dir = ../../../../reference/GENCODE/gembs-index/
 
 sequence_dir = 01-fastq-trimmed
 bam_dir = 02-mapping
@@ -139,12 +139,12 @@ gemBS --dry-run run
 
 
 # MAPPING
-parallel --dry-run -S ${RUN_SERVERS} --joblog ${DATE_STR}-map.log --nonall --workdir . gemBS map
+parallel -S ${RUN_SERVERS} --joblog ${DATE_STR}-map.log --nonall --workdir . gemBS map
 # END MAPPING
 
 
 # Calling
-parallel --dry-run -S ${RUN_SERVERS} --joblog ${DATE_STR}-call.log --nonall --workdir . gemBS call
+parallel -S ${RUN_SERVERS} --joblog ${DATE_STR}-call.log --nonall --workdir . gemBS call
 gemBS report
 # END CALLING
 
@@ -165,13 +165,6 @@ then
 else
    echo "${EXTRACT_PATH} is full (no need to extract methylation); delete if you need to!"
 fi
-
-
-
-
-
-#TODO: call extraction_...py
-# Use awk skript here
 
 cd ${MY_HOME}
 done 

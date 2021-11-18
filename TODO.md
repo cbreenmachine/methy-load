@@ -9,6 +9,7 @@ Ways to improve code readability, function, and portability.
 - [ ] Remove delete permissions from raw files? See [here](https://ostechnix.com/prevent-files-folders-accidental-deletion-modification-linux/)
 
 ### In Progress
+- [ ] Fix this in meta.csv files: 217,217_CGCAACTA-GAATCCGA_L00M001_,217_CGCAACTA-GAATCCGA_L00M_R1_001_val_1.fq,217_CGCAACTA-GAATCCGA_L00M_R2_001_val_2.fq
 - [ ] Bismark reference genome on same NIH reference.
 - [ ] Incorporate sandbox into `runall.sh`
 - [ ] Console and logging output for `runall.sh`
