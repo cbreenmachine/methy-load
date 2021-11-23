@@ -17,14 +17,16 @@
 
 #TODO: Make default environment wgbs (after finishes running)
 # CONSTANTS
-RUN_SERVERS="nebula-5,nebula-6,nebula-7"
+RUN_SERVERS="nebula-2,nebula-4,nebula-5"
 DATE_STR=$(date +"%y-%m-%d")
 MY_HOME=$(pwd)
+
+parallel --nonall -S ${RUN_SERVERS} ::: 'free -hm'
 
 # SETUP PATHS
 #TODO: Make this accept from getopts
 #ROOT_DIR="group0{1..4}/"
-POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool05-group0{1..4}/)" # be sure to have trailing slash
+POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool05-group0{2..4}/)" # be sure to have trailing slash
 
 FASTQ_PATH="00-fastq/"
 FASTQ_TRIMMED_PATH="01-fastq-trimmed/"
@@ -94,10 +96,10 @@ do
     # f="../../data/something.csv"
     # --> ${f##*/} is something.csv
     barcode=$(echo ${f##*/} | cut -d "_" -f 1 | sed -E 's/R/s/')
-    dataset=$(echo ${f##*/} | sed -E 's/val_[1-2].fq//' | sed -E 's/_R1_//')
+   # dataset=$(echo ${f##*/} | sed -E 's/val_[1-2].fq//' | sed -E 's/_R1_//')
     file1=$(echo ${f##*/})
     file2=$(echo ${f##*/} | sed -E 's/R1/R2/' | sed -E 's/val_1/val_2/')
-    echo $barcode","$dataset","$file1","$file2 >> ${META_OUT}
+    echo "${barcode},${barcode},${file1},${file2}" >> ${META_OUT}
 done
 # END MAKE META FILE
 
@@ -115,11 +117,15 @@ extract_dir = 04-extract
 report_dir = 05-report
 
 # Large memory footprint, less so on CPUs
-memory = 80G
+memory = 90G
 cores = 8
 keep_logs = True
 
+[mapping]
+loglevel=info
+
 [calling]
+loglevel=info
 right_trim = 0,0
 left_trim = 0,0
 
@@ -139,7 +145,7 @@ gemBS --dry-run run
 
 
 # MAPPING
-parallel -S ${RUN_SERVERS} --joblog ${DATE_STR}-map.log --nonall --workdir . gemBS map
+parallel -S ${RUN_SERVERS} --joblog ${DATE_STR}-map.log --nonall --workdir . gemBS --loglevel debug map
 # END MAPPING
 
 
@@ -161,7 +167,7 @@ then
     ls -1 ${CALLS_PATH}???.bcf | sed -E 's/bcf/tsv/' | sed "s|$CALLS_PATH|$EXTRACT_PATH|g" > OUTPUT
   
     parallel --link --workdir . --joblog ${DATE_STR}-extract.log \
-        ./extract.sh {1} {2} :::: INPUT :::: OUTPUT
+        ${MY_PATH}/extract.sh {1} {2} :::: INPUT :::: OUTPUT
 else
    echo "${EXTRACT_PATH} is full (no need to extract methylation); delete if you need to!"
 fi
