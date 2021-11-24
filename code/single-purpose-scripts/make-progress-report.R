@@ -11,7 +11,7 @@ extracted <- list.files(root_dir, pattern = ".tsv", recursive = TRUE)
 
 N <- min(c(max_possible, length(raw_fastqs)))
 
-df <- data.frame(PercTrimmed = length(trimmed_fastqs) / (2*N),
-                 PercMapped  = length(mapped) / N,
-                 PercExtracted = length(extracted) / N)
+df <- data.frame(NumTrimmed = length(trimmed_fastqs) / 2,
+                 NumMapped  = length(mapped),
+                 NumExtracted = length(extracted))
 print(df)
