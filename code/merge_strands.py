@@ -3,7 +3,6 @@ import csv
 import sys
 import itertools
 
-
 # https://stackoverflow.com/questions/5434891/iterate-a-list-as-pair-current-next-in-python
 def pairwise(iterable):
     """generates two iterators, second offset by one

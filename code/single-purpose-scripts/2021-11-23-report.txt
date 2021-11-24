@@ -1,0 +1,2 @@
+  PercTrimmed PercMapped PercExtracted
+1         0.7       0.24          0.06

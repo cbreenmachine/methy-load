@@ -21,12 +21,11 @@ RUN_SERVERS="nebula-2,nebula-4,nebula-5"
 DATE_STR=$(date +"%y-%m-%d")
 MY_HOME=$(pwd)
 
-parallel --nonall -S ${RUN_SERVERS} ::: 'free -hm'
-
 # SETUP PATHS
 #TODO: Make this accept from getopts
 #ROOT_DIR="group0{1..4}/"
-POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool05-group0{2..4}/)" # be sure to have trailing slash
+#POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool05-group0{2..4}/)" # be sure to have trailing slash
+POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool05-group04/)" # be sure to have trailing slash
 
 FASTQ_PATH="00-fastq/"
 FASTQ_TRIMMED_PATH="01-fastq-trimmed/"

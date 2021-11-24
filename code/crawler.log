@@ -1,0 +1,16 @@
+Seq	Host	Starttime	JobRuntime	Send	Receive	Exitval	Signal	Command
+10	:	1637723470.792	  4142.503	0	0	0	0	./extract.sh ../data/2021-11-03-batch01/pool01-group04/03-calls/120.bcf ../data/2021-11-03-batch01/pool01-group04/04-extract/120.tsv
+14	:	1637723470.939	  4253.773	0	0	0	0	./extract.sh ../data/2021-11-03-batch01/pool01-group02/03-calls/107.bcf ../data/2021-11-03-batch01/pool01-group02/04-extract/107.tsv
+4	:	1637723470.562	  4302.872	0	0	0	0	./extract.sh ../data/2021-11-03-batch01/pool01-group03/03-calls/113.bcf ../data/2021-11-03-batch01/pool01-group03/04-extract/113.tsv
+5	:	1637723470.569	  4304.075	0	0	0	0	./extract.sh ../data/2021-11-03-batch01/pool01-group03/03-calls/116.bcf ../data/2021-11-03-batch01/pool01-group03/04-extract/116.tsv
+3	:	1637723470.555	  4645.937	0	0	0	0	./extract.sh ../data/2021-11-03-batch01/pool01-group03/03-calls/114.bcf ../data/2021-11-03-batch01/pool01-group03/04-extract/114.tsv
+9	:	1637723470.757	  4818.268	0	0	0	0	./extract.sh ../data/2021-11-03-batch01/pool01-group04/03-calls/123.bcf ../data/2021-11-03-batch01/pool01-group04/04-extract/123.tsv
+12	:	1637723470.888	  4915.351	0	0	0	0	./extract.sh ../data/2021-11-03-batch01/pool01-group02/03-calls/110.bcf ../data/2021-11-03-batch01/pool01-group02/04-extract/110.tsv
+15	:	1637723470.973	  4922.937	0	0	0	0	./extract.sh ../data/2021-11-03-batch01/pool01-group02/03-calls/111.bcf ../data/2021-11-03-batch01/pool01-group02/04-extract/111.tsv
+6	:	1637723470.599	  4968.279	0	0	0	0	./extract.sh ../data/2021-11-03-batch01/pool01-group04/03-calls/122.bcf ../data/2021-11-03-batch01/pool01-group04/04-extract/122.tsv
+8	:	1637723470.708	  4973.009	0	0	0	0	./extract.sh ../data/2021-11-03-batch01/pool01-group04/03-calls/118.bcf ../data/2021-11-03-batch01/pool01-group04/04-extract/118.tsv
+11	:	1637723470.841	  4973.628	0	0	0	0	./extract.sh ../data/2021-11-03-batch01/pool01-group02/03-calls/108.bcf ../data/2021-11-03-batch01/pool01-group02/04-extract/108.tsv
+7	:	1637723470.626	  4976.052	0	0	0	0	./extract.sh ../data/2021-11-03-batch01/pool01-group04/03-calls/119.bcf ../data/2021-11-03-batch01/pool01-group04/04-extract/119.tsv
+13	:	1637723470.910	  5003.100	0	0	0	0	./extract.sh ../data/2021-11-03-batch01/pool01-group02/03-calls/109.bcf ../data/2021-11-03-batch01/pool01-group02/04-extract/109.tsv
+1	:	1637723470.545	  5018.447	0	0	0	0	./extract.sh ../data/2021-11-03-batch01/pool01-group03/03-calls/112.bcf ../data/2021-11-03-batch01/pool01-group03/04-extract/112.tsv
+2	:	1637723470.550	  5040.176	0	0	0	0	./extract.sh ../data/2021-11-03-batch01/pool01-group03/03-calls/115.bcf ../data/2021-11-03-batch01/pool01-group03/04-extract/115.tsv
