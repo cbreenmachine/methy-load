@@ -1,10 +1,8 @@
 #TODO: get PCA working on five samples
 #Go chromosome by chromosome? Or can we do all at once.
-#
 
 library(data.table)
 library(tidyverse)
-library(ggfortify)
 library(gmodels)
 library(wiscR)
 
@@ -16,15 +14,11 @@ my_files <- list.files(path = ROOT_DIR, pattern =  "[0-9][0-9][0-9].tsv", recurs
 
 samples.df <- read.table(paste0(ROOT_DIR, "meta-data.tsv"), header=TRUE)
 
+if (file.exists("pca.csv")){
+    df <- read_csv("pca.csv")
+    percent_v <- dplyr::pull(read_csv("percent_var_exp.csv"), x)
 
-# TODO
-#for (row.ix in 1:nrow(samples.df)){
-#    tmp <- samples.df[row.ix, ]
-#   file_name <- file.path(ROOT_DIR, paste(tmp$pool,tmp$group, sep= "-"), "04-extract", paste0(tmp$sample, ".tsv"))
-#    if (file.exists(file_name)){
-#        print("hell yeah")
-#    }
-#}
+}
 
 read_and_filter <- function(file_name, chr_vec=c("chr1")){
     sample_name <- str_remove(file_name, ".tsv") %>% basename()
