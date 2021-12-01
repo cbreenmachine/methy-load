@@ -23,7 +23,7 @@ MY_HOME=$(pwd)
 
 # SETUP PATHS
 #POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool03-group0{1..3}/)" # be sure to have trailing slash
-POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool03-group02/)" # be sure to have trailing slash
+POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool02-group01/)" # be sure to have trailing slash
 
 # constants
 FASTQ_PATH="00-fastq/"
