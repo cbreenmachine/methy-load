@@ -22,11 +22,10 @@ DATE_STR=$(date +"%y-%m-%d")
 MY_HOME=$(pwd)
 
 # SETUP PATHS
-#TODO: Make this accept from getopts
-#ROOT_DIR="group0{1..4}/"
-#POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool05-group0{2..4}/)" # be sure to have trailing slash
-POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool04-group0{2..3}/)" # be sure to have trailing slash
+#POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool03-group0{1..3}/)" # be sure to have trailing slash
+POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool03-group02/)" # be sure to have trailing slash
 
+# constants
 FASTQ_PATH="00-fastq/"
 FASTQ_TRIMMED_PATH="01-fastq-trimmed/"
 CALLS_PATH="03-calls/"
@@ -59,31 +58,41 @@ for pool in $POOL_SUB_DIRS;
 do
 cd ${pool}
 echo "Working on ${pool}"
-#meta_out="./$(echo ${pool%/}).meta.csv" # name of meta file used in gemBS
-#conf_out="./$(echo ${pool%/}).conf" # name of congiguration file used by gemBS
-#fastq_path=${ROOT_DIR}${pool}"00-fastq/"
-#fastq_trimmed_path=${ROOT_DIR}${pool}"01-fastq-trimmed/"
 
-# trim files (conditional on them not being trimmed yet)
-# Consider piping file names to TMP and then using parallel afterwords
-ls -1 ${FASTQ_PATH}*R1*.fastq.gz | uniq > LEFT
-ls -1 ${FASTQ_PATH}*R2*.fastq.gz | uniq > RIGHT
 
-# 1. After trimming, rename files, then move them to appropriate dir
-# 2. Make conditional ()
-if [ -z "$(ls -A ${FASTQ_TRIMMED_PATH})" ]
-then
-   echo "${FASTQ_TRIMMED_PATH} is empty, trimming files now."
-    # --link creates a mapping between the lines in LEFT and lines in RIGHT 
-    # (one-to-one instead of pairwise combinations)
-    # the fourth ':' means cat LEFT and RIGHT (don't treat as variable/expansion)
-    parallel --link -S ${RUN_SERVERS} --workdir . --joblog ${DATE_STR}-trim.log \
-        trim_galore --phred33 --cores 6 --output_dir ${FASTQ_TRIMMED_PATH} \
-        --dont_gzip --paired {1} {2} :::: LEFT :::: RIGHT
-else
-   echo "${FASTQ_TRIMMED_PATH} is full (no need to trim/fastqc files); delete if you need to re-trim!"
+# Figure out which files need to be trimmed
+# First, replicate trim galore's naming scheme (and also my directory structure)
+function mimic_trim_galore_name() {
+  echo "${1}" | sed -e s/R1_001.fastq.gz/R1_001_val_1.fq/ | sed -e s/R2_001.fastq.gz/R2_001_val_2.fq/  | sed -e s/00-fastq/01-fastq-trimmed/
+}
+
+> LEFT
+for ff in ${FASTQ_PATH}*R1*.fastq.gz; do 
+  tmp=$(mimic_trim_galore_name ${ff})
+if [[ ! -f "${tmp}" ]]; then echo "${ff}" >> LEFT; fi
+done
+
+> RIGHT
+for ff in ${FASTQ_PATH}*R2*.fastq.gz; do 
+  tmp=$(mimic_trim_galore_name ${ff})
+if [[ ! -f "${tmp}" ]]; then echo "${ff}" >> RIGHT; fi
+done
+
+# Check that they have the same lengths (equal number of left and right reads)
+if [[ $(wc -l< LEFT) -ne $(wc -l< RIGHT) ]]; then 
+  echo "UNEQUAL NUMBER OF FORWARD AND REVERSE READS IDENTIFIED; RE-TRIMMING ALL"
+  ls -1 ${FASTQ_PATH}*R1*.fastq.gz | uniq > LEFT
+  ls -1 ${FASTQ_PATH}*R2*.fastq.gz | uniq > RIGHT
 fi
 
+echo "TRIMMING WILL BE DONE ON THE FOLLOWING:"
+cat LEFT RIGHT
+# --link creates a mapping between the lines in LEFT and lines in RIGHT 
+# (one-to-one instead of pairwise combinations)
+# the fourth ':' means cat LEFT and RIGHT (don't treat as variable/expansion)
+parallel --link -S ${RUN_SERVERS} --workdir . --joblog ${DATE_STR}-trim.log \
+    trim_galore --phred33 --cores 6 --output_dir ${FASTQ_TRIMMED_PATH} \
+    --dont_gzip --paired {1} {2} :::: LEFT :::: RIGHT
 rm LEFT RIGHT
 # END TRIMMING SECTION
 
