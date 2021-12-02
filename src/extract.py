@@ -103,7 +103,13 @@ for a, b in pairwise(infile):
 #############################################################
 
 if __name__ == "__main__":
-    'things here'
+    parser = argparse.ArgumentParser(description='methylation extraction options')
+    parser.add_argument('integers', metavar='N', type=int, nargs='+',
+                    help='an integer for the accumulator')
+    parser.add_argument('--crawl', dest='accumulate', action='store_true',
+                    help='should the script crawl (recursively)')
+
+args = parser.parse_args()
     # want argparse--incorporate crawler
     # accept input output
     # accept --merge
