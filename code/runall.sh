@@ -23,7 +23,7 @@ MY_HOME=$(pwd)
 
 # SETUP PATHS
 #POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool03-group0{1..3}/)" # be sure to have trailing slash
-POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool02-group01/)" # be sure to have trailing slash
+POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool02-group0{2..4}/)" # be sure to have trailing slash
 
 # constants
 FASTQ_PATH="00-fastq/"
@@ -38,8 +38,7 @@ for pool in ${POOL_SUB_DIRS}; do
 # This directory contains 00-fastq
   cd ${pool}
   echo "Found these input files in ${ROOT_DIR}${pool} :"
-  ls 00-fastq
-  echo "Creating ${FASTQ_TRIMMED_PATH} directory"
+  ls -l --block-size=G "${FASTQ_PATH}" 
   mkdir -p -v "${FASTQ_TRIMMED_PATH}"
   printf "\n" 
   cd ${MY_HOME}
