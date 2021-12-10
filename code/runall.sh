@@ -23,7 +23,7 @@ MY_HOME=$(pwd)
 
 # SETUP PATHS
 #POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool03-group0{1..3}/)" # be sure to have trailing slash
-POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool02-group0{2..4}/)" # be sure to have trailing slash
+POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool03-group04/)" # be sure to have trailing slash
 
 # constants
 FASTQ_PATH="00-fastq/"
@@ -163,21 +163,23 @@ gemBS report
 
 # EXTRACT
 
-mkdir -p -v "${EXTRACT_PATH}"
-if [ -z "$(ls -A ${EXTRACT_PATH})" ] ;
-then
-    echo "${EXTRACT_PATH} is empty, extracting methylation now."
+#mkdir -p -v "${EXTRACT_PATH}"
+#if [ -z "$(ls -A ${EXTRACT_PATH})" ] ;
+#then
+#    echo "${EXTRACT_PATH} is empty, extracting methylation now."
 
     # bcfs we want are in format 123.bcf
     ls -1 ${CALLS_PATH}???.bcf > INPUT
     # Pipes needed since there are '/' in the two variables
-    ls -1 ${CALLS_PATH}???.bcf | sed -E 's/bcf/tsv/' | sed "s|$CALLS_PATH|$EXTRACT_PATH|g" > OUTPUT
+  #  ls -1 ${CALLS_PATH}???.bcf | sed -E 's/bcf/tsv/' | sed "s|$CALLS_PATH|$EXTRACT_PATH|g" > OUTPUT
   
-    parallel --link --workdir . --joblog ${DATE_STR}-extract.log \
-        ${MY_PATH}/extract.sh {1} {2} :::: INPUT :::: OUTPUT
-else
-   echo "${EXTRACT_PATH} is full (no need to extract methylation); delete if you need to!"
-fi
+   # parallel --link --workdir . --joblog ${DATE_STR}-extract.log \
+    #    ${MY_PATH}/extract.sh {1} {2} :::: INPUT :::: OUTPUT
+#else
+#   echo "${EXTRACT_PATH} is full (no need to extract methylation); delete if you need to!"
+#fi
 
 cd ${MY_HOME}
 done 
+
+bash ./extract_crawler.sh
