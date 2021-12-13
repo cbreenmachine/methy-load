@@ -1,7 +1,1 @@
 Seq	Host	Starttime	JobRuntime	Send	Receive	Exitval	Signal	Command
-6	:	1638555385.600	  3516.522	0	0	0	0	./extract.sh ../data/2021-11-03-batch01/pool03-group01/03-calls/147.bcf ../data/2021-11-03-batch01/pool03-group01/04-extract/147.tsv
-1	:	1638555385.513	  3539.809	0	0	0	0	./extract.sh ../data/2021-11-03-batch01/pool02-group01/03-calls/126.bcf ../data/2021-11-03-batch01/pool02-group01/04-extract/126.tsv
-4	:	1638555385.578	  3628.873	0	0	0	0	./extract.sh ../data/2021-11-03-batch01/pool03-group01/03-calls/148.bcf ../data/2021-11-03-batch01/pool03-group01/04-extract/148.tsv
-3	:	1638555385.557	  3675.466	0	0	0	0	./extract.sh ../data/2021-11-03-batch01/pool03-group01/03-calls/145.bcf ../data/2021-11-03-batch01/pool03-group01/04-extract/145.tsv
-2	:	1638555385.537	  3717.554	0	0	0	0	./extract.sh ../data/2021-11-03-batch01/pool03-group01/03-calls/144.bcf ../data/2021-11-03-batch01/pool03-group01/04-extract/144.tsv
-5	:	1638555385.589	  3719.835	0	0	0	0	./extract.sh ../data/2021-11-03-batch01/pool03-group01/03-calls/146.bcf ../data/2021-11-03-batch01/pool03-group01/04-extract/146.tsv
