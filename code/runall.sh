@@ -22,8 +22,8 @@ DATE_STR=$(date +"%y-%m-%d")
 MY_HOME=$(pwd)
 
 # SETUP PATHS
-#POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool03-group0{1..3}/)" # be sure to have trailing slash
-POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool02-group0{1..4}/)" # be sure to have trailing slash
+#POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool05-group0{1..4}/)" # be sure to have trailing slash
+POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool04-group01/)" # be sure to have trailing slash
 
 # constants
 FASTQ_PATH="00-fastq/"
@@ -124,15 +124,19 @@ extract_dir = 04-extract
 report_dir = 05-report
 
 # Large memory footprint, less so on CPUs
-memory = 90G
-cores = 8
+#memory = 85G
+#cores = 8
 keep_logs = True
 
+
 [mapping]
-loglevel=info
+memory = 64G
+cores = 10
+merge_cores = 8
+merge_memory = 8G
 
 [calling]
-loglevel=info
+
 right_trim = 0,0
 left_trim = 0,0
 
@@ -145,14 +149,15 @@ make_bedmethyl = False" > ${CONF_OUT}
 
 
 # GEMBS PREPARATION AND CONSOLE OUTPUT
+rm -rf .gemBS # clears some hanging errors
 gemBS prepare -c ${CONF_OUT} -t ${META_OUT}
-echo "gemBS will run the following commands:"
-gemBS --dry-run run
+#echo "gemBS will run the following commands:"
+#gemBS --dry-run run
 # END GEMBS PREP/OUTPUT
 
 
 # MAPPING
-parallel -S ${RUN_SERVERS} --joblog ${DATE_STR}-map.log --nonall --workdir . gemBS --loglevel debug map
+parallel -S ${RUN_SERVERS} --joblog ${DATE_STR}-map.log --nonall --workdir . gemBS map
 # END MAPPING
 
 
