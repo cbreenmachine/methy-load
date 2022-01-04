@@ -15,3 +15,5 @@
 *.vcf
 *.sam
 *.csv
+
+./analysis/*.md
