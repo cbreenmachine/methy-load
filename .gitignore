@@ -16,4 +16,4 @@
 *.sam
 *.csv
 
-./analysis/*.md
+analysis/2022-01-notebook.md
