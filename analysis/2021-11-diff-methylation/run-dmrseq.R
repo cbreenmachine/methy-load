@@ -9,7 +9,7 @@ library(annotatr)
 
 # b3galt4 chr 6
 # zadh2 chr 18
-my_file <- "../../data/2021-12-02-methylation-coverage/chr6_meth_cov.tsv"
+my_file <- "../../data/cov_meth/chr6_meth_cov.tsv"
 DT <- fread(my_file)
 
 tmp <- basename(my_file) %>% str_remove(".tsv") %>% str_split("_") 
@@ -23,7 +23,7 @@ C <- dcast(DT, pos~sample, value.var="coverage")
 # position vector should be sorted...it is
 #tmp <- (M$pos[-1] - M$pos[1:(nrow(M)-1)]) > 0
 #all(tmp)
-samples.df <- read.csv("../../data/meta/DHMRI_samplesheet_pilot.csv") 
+samples.df <- read.csv("../../data/meta/archived/DHMRI_samplesheet_pilot.csv") 
 
 valid_samples <- intersect(unique(DT$sample), samples.df$Alisch_ID)
 samples_filt.df <- samples.df %>% dplyr::filter(Alisch_ID %in% valid_samples) %>%

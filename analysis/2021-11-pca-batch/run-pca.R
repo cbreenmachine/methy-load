@@ -19,8 +19,8 @@ parser$add_argument('--quick', action='store_true', help='run on one sec chrom o
 args <- parser$parse_args()
 
 
-ROOT_DIR <- "../../data/2021-12-02-methylation-coverage/"
-my_files <- list.files(path = ROOT_DIR, pattern =  "meth_cov.tsv", recursive = TRUE, full = TRUE)
+ROOT_DIR <- "../../data/cov_meth/"
+my_files <- list.files(path = ROOT_DIR, pattern =  "cov_meth.tsv", recursive = TRUE, full = TRUE)
 
 if (args$quick){ my_files <- my_files[length(my_files)]}
 
