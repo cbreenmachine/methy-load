@@ -60,7 +60,7 @@ echo "Working on ${pool}"
 
 
 # Figure out which files need to be trimmed
-
+# https://stackoverflow.com/questions/4011814/how-to-interleave-lines-from-two-text-files
 function mimic_trim_galore_name() {
   # First, replicate trim galore's naming scheme (and also my directory structure)
   # to check if the trimmed file was properlu created
