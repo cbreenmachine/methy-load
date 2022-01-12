@@ -1,4 +1,4 @@
-
+*.png
 ./data/*
 *.fastq
 *.fasta
