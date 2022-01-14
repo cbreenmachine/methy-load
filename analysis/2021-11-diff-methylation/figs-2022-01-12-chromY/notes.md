@@ -1,0 +1,2 @@
+-from chromosome Y
+-region 18 is interesting--should analysis take more of an ANOVA flavor??

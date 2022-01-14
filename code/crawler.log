@@ -1,2 +1,20 @@
 Seq	Host	Starttime	JobRuntime	Send	Receive	Exitval	Signal	Command
-1	:	1641634451.244	  1667.746	0	0	0	0	./extract.sh ../data/batch02/pool06/03-calls/222.bcf ../data/batch02/pool06/04-extract/222.tsv
+19	:	1642131135.629	  4950.006	0	0	0	0	./extract.sh ../data/batch02/pool06/03-calls/204.bcf ../data/batch02/pool06/04-extract/204.tsv
+7	:	1642131135.313	  4998.194	0	0	0	0	./extract.sh ../data/batch02/pool06/03-calls/206.bcf ../data/batch02/pool06/04-extract/206.tsv
+5	:	1642131135.267	  4999.133	0	0	0	0	./extract.sh ../data/batch02/pool06/03-calls/224.bcf ../data/batch02/pool06/04-extract/224.tsv
+8	:	1642131135.337	  5001.278	0	0	0	0	./extract.sh ../data/batch02/pool06/03-calls/225.bcf ../data/batch02/pool06/04-extract/225.tsv
+11	:	1642131135.416	  5002.314	0	0	0	0	./extract.sh ../data/batch02/pool06/03-calls/226.bcf ../data/batch02/pool06/04-extract/226.tsv
+15	:	1642131135.541	  5007.741	0	0	0	0	./extract.sh ../data/batch02/pool06/03-calls/215.bcf ../data/batch02/pool06/04-extract/215.tsv
+10	:	1642131135.392	  5010.578	0	0	0	0	./extract.sh ../data/batch02/pool06/03-calls/221.bcf ../data/batch02/pool06/04-extract/221.tsv
+1	:	1642131135.183	  5018.359	0	0	0	0	./extract.sh ../data/batch02/pool06/03-calls/209.bcf ../data/batch02/pool06/04-extract/209.tsv
+12	:	1642131135.443	  5018.621	0	0	0	0	./extract.sh ../data/batch02/pool06/03-calls/213.bcf ../data/batch02/pool06/04-extract/213.tsv
+18	:	1642131135.609	  5020.226	0	0	0	0	./extract.sh ../data/batch02/pool06/03-calls/220.bcf ../data/batch02/pool06/04-extract/220.tsv
+6	:	1642131135.285	  5032.394	0	0	0	0	./extract.sh ../data/batch02/pool06/03-calls/201.bcf ../data/batch02/pool06/04-extract/201.tsv
+16	:	1642131135.568	  5047.339	0	0	0	0	./extract.sh ../data/batch02/pool06/03-calls/212.bcf ../data/batch02/pool06/04-extract/212.tsv
+13	:	1642131135.483	  5048.730	0	0	0	0	./extract.sh ../data/batch02/pool06/03-calls/214.bcf ../data/batch02/pool06/04-extract/214.tsv
+2	:	1642131135.203	  5050.569	0	0	0	0	./extract.sh ../data/batch02/pool06/03-calls/207.bcf ../data/batch02/pool06/04-extract/207.tsv
+14	:	1642131135.517	  5050.638	0	0	0	0	./extract.sh ../data/batch02/pool06/03-calls/205.bcf ../data/batch02/pool06/04-extract/205.tsv
+3	:	1642131135.224	  5070.391	0	0	0	0	./extract.sh ../data/batch02/pool06/03-calls/211.bcf ../data/batch02/pool06/04-extract/211.tsv
+9	:	1642131135.369	  5072.888	0	0	0	0	./extract.sh ../data/batch02/pool06/03-calls/219.bcf ../data/batch02/pool06/04-extract/219.tsv
+17	:	1642131135.585	  5073.670	0	0	0	0	./extract.sh ../data/batch02/pool06/03-calls/227.bcf ../data/batch02/pool06/04-extract/227.tsv
+4	:	1642131135.242	  5102.886	0	0	0	0	./extract.sh ../data/batch02/pool06/03-calls/223.bcf ../data/batch02/pool06/04-extract/223.tsv

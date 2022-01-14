@@ -14,6 +14,7 @@ args <- parser$parse_args()
 # Make output and collect chromosomal files
 dir.create(args$odir, showWarnings = FALSE)
 my_files <- list.files(path = args$idir, pattern =  ".tsv", recursive = FALSE, full = TRUE)
+my_files <- my_files[str_detect(my_files, "chr")]
 
 plot_pca <- function(df, color_by_str, label = FALSE){
     # 2d scatterplot of first two principal components
@@ -59,4 +60,29 @@ for (ff in my_files){
     
     plot_pca(df, "mean_methylation", label=TRUE)
     print(ff)
+}
+
+ve.df <- read_tsv(file.path(args$idir, "var_explained.tsv")) 
+
+
+plot_scree <- function(ve.df, chr){
+
+    p <- ve.df %>%
+        dplyr::filter(chrom == chr) %>%
+        arrange(PC) %>%
+        mutate(cum_var_explained = cumsum(var_explained)) %>%
+        ggplot(aes(x = PC, y = cum_var_explained)) +
+        geom_point(size = 7) +
+        geom_line(size = 1.3) +
+        ylim(c(0, 0.5)) +
+        xlab("Number of PCs") +
+        ylab("Cumulative var explained (%)") +
+        ggtitle(chr) +
+        wiscR::light_theme()
+
+    wiscR::save_plot(p, file.path(args$odir, paste0("scree-", chr, ".png")))
+}
+
+for (vv in unique(ve.df$chrom)){
+    plot_scree(ve.df, vv)
 }

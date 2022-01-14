@@ -23,7 +23,7 @@ MY_HOME=$(pwd)
 
 # SETUP PATHS
 #POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool05-group0{1..4}/)" # be sure to have trailing slash
-POOL_SUB_DIRS="$(echo ../data/batch02/pool06/)" # be sure to have trailing slash
+POOL_SUB_DIRS="$(echo ../data/batch02/pool07/)" # be sure to have trailing slash
 
 # constants
 FASTQ_PATH="00-fastq/"
@@ -57,7 +57,7 @@ for pool in $POOL_SUB_DIRS;
 do
 cd ${pool}
 echo "Working on ${pool}"
-
+num_files=$(ls ${FASTQ_PATH} | wc -l)
 
 # Figure out which files need to be trimmed
 # https://stackoverflow.com/questions/4011814/how-to-interleave-lines-from-two-text-files
@@ -73,39 +73,33 @@ function left_to_right() {
   echo "${1}" | sed -e s/R1/R2/ | sed -e s/val_1/val_2/
 }
 
-> LEFT 
-> RIGHT
-for ff in ${FASTQ_PATH}*R1*.fastq.gz; do 
-  trimmed_left=$(mimic_trim_galore_name ${ff})
-  trimmed_right=$(left_to_right ${trimmed_left})
-if [[ ! -f "${trimmed_left}"  || ! -f "${trimmed_right}" ]]; then 
-echo "${ff}" >> LEFT; 
-echo "$(left_to_right ${ff})" >> RIGHT; 
-fi
+# sometimes a couple files don't make it thru validation
+num_trimmed=$(ls ${FASTQ_TRIMMED_PATH}*val*.fq | wc -l)
+while [ ${num_trimmed} -lt ${num_files} ]
+  do
+  > LEFT 
+  > RIGHT
+  for ff in ${FASTQ_PATH}*R1*.fastq.gz; do 
+    trimmed_left=$(mimic_trim_galore_name ${ff})
+    trimmed_right=$(left_to_right ${trimmed_left})
+  if [[ ! -f "${trimmed_left}"  || ! -f "${trimmed_right}" ]]; then 
+  echo "${ff}" >> LEFT; 
+  echo "$(left_to_right ${ff})" >> RIGHT; 
+  fi
+  done
+
+  echo "TRIMMING WILL BE DONE ON THE FOLLOWING:"
+  cat LEFT RIGHT
+  # --link creates a mapping between the lines in LEFT and lines in RIGHT 
+  # (one-to-one like python's zip instead of pairwise combinations)
+  # the fourth ':' means cat LEFT and RIGHT (don't treat as variable/expansion)
+  parallel --link -S ${RUN_SERVERS} --workdir . --joblog ${DATE_STR}-trim.log \
+      trim_galore --phred33 --cores 6 --output_dir ${FASTQ_TRIMMED_PATH} \
+      --dont_gzip --paired {1} {2} :::: LEFT :::: RIGHT
+  rm LEFT RIGHT
+
+  num_trimmed=$(ls ${FASTQ_TRIMMED_PATH}*val*.fq | wc -l)
 done
-
-#> RIGHT
-#for ff in ${FASTQ_PATH}*R2*.fastq.gz; do 
-#  tmp=$(mimic_trim_galore_name ${ff})
-#if [[ ! -f "${tmp}" || ! -f {tmp_right}]]; then echo "${ff}" >> RIGHT; fi
-#done
-
-# Check that they have the same lengths (equal number of left and right reads)
-#if [[ $(wc -l< LEFT) -ne $(wc -l< RIGHT) ]]; then 
-#  echo "UNEQUAL NUMBER OF FORWARD AND REVERSE READS IDENTIFIED; RE-TRIMMING ALL"
-#  ls -1 ${FASTQ_PATH}*R1*.fastq.gz | uniq > LEFT
-#  ls -1 ${FASTQ_PATH}*R2*.fastq.gz | uniq > RIGHT
-#fi
-
-echo "TRIMMING WILL BE DONE ON THE FOLLOWING:"
-cat LEFT RIGHT
-# --link creates a mapping between the lines in LEFT and lines in RIGHT 
-# (one-to-one like python's zip instead of pairwise combinations)
-# the fourth ':' means cat LEFT and RIGHT (don't treat as variable/expansion)
-parallel --link -S ${RUN_SERVERS} --workdir . --joblog ${DATE_STR}-trim.log \
-    trim_galore --phred33 --cores 6 --output_dir ${FASTQ_TRIMMED_PATH} \
-    --dont_gzip --paired {1} {2} :::: LEFT :::: RIGHT
-rm LEFT RIGHT
 # END TRIMMING SECTION
 
 
@@ -144,7 +138,7 @@ keep_logs = True
 
 [mapping]
 memory = 64G
-cores = 10
+cores = 8
 merge_cores = 4
 merge_memory = 8G
 
@@ -173,29 +167,10 @@ gemBS prepare -c ${CONF_OUT} -t ${META_OUT}
 parallel -S ${RUN_SERVERS} --joblog ${DATE_STR}-map.log --nonall --workdir . gemBS map
 # END MAPPING
 
-
 # Calling
 parallel -S ${RUN_SERVERS} --joblog ${DATE_STR}-call.log --nonall --workdir . gemBS call
 gemBS report
 # END CALLING
-
-# EXTRACT
-
-#mkdir -p -v "${EXTRACT_PATH}"
-#if [ -z "$(ls -A ${EXTRACT_PATH})" ] ;
-#then
-#    echo "${EXTRACT_PATH} is empty, extracting methylation now."
-
-    # bcfs we want are in format 123.bcf
-    ls -1 ${CALLS_PATH}???.bcf > INPUT
-    # Pipes needed since there are '/' in the two variables
-  #  ls -1 ${CALLS_PATH}???.bcf | sed -E 's/bcf/tsv/' | sed "s|$CALLS_PATH|$EXTRACT_PATH|g" > OUTPUT
-  
-   # parallel --link --workdir . --joblog ${DATE_STR}-extract.log \
-    #    ${MY_PATH}/extract.sh {1} {2} :::: INPUT :::: OUTPUT
-#else
-#   echo "${EXTRACT_PATH} is full (no need to extract methylation); delete if you need to!"
-#fi
 
 cd ${MY_HOME}
 done 

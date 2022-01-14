@@ -28,10 +28,12 @@ def read_data(file_path):
 
     df_raw = pd.read_csv(file_path, sep = "\t")
     df_raw['methylation_estimate'] = df_raw['methylated'] / df_raw['coverage'] # point estimate for methylationg
+    df_raw.drop(columns=['methylated','chr', 'unmethylated'], inplace = True)
+    df_raw = df_raw.astype({'sample': 'uint8', 'methylation_estimate': 'float32', 'coverage': 'uint8'})
     # TODO: Delet these lines if this works...
     #df_meth = (df.pivot_table(index=['pos'], columns=['sample'], values=['methylated']))
     #df_cov = (df.pivot_table(index=['pos'], columns=['sample'], values=['coverage']))
-    df = (df_raw.pivot_table(index=['pos'], columns=['sample'], values=['methylation_estimate', 'methylated', 'coverage']))
+    df = (df_raw.pivot_table(index=['pos'], columns=['sample'], values=['methylation_estimate', 'coverage']))
     return df
 
 def filter_too_many_nulls(df, num_na_cut=60, mean_cut=5):
@@ -62,7 +64,7 @@ def run_pca(X, num_components = 2, is_incremental=True):
     #TODO: allow for normal PCA
     ipca = IncrementalPCA(n_components = num_components, batch_size=10000)
     X_ipca = ipca.fit_transform(X)
-    return X_ipca
+    return X_ipca,  ipca.explained_variance_ratio_
 
 
 if __name__ == "__main__":
@@ -87,7 +89,11 @@ if __name__ == "__main__":
 
     # PCA step 
     # TODO: Run normal PCA or incremental??
-    pca_out = run_pca(X, num_components = args.num_components)
+    pca_out, var_exp = run_pca(X, num_components = args.num_components)
+    # 
+
+
+
     col_names = ['PC' + str(x) for x in range(1, args.num_components + 1)]
     pca_df = pd.DataFrame(pca_out, columns = col_names)
     
@@ -104,3 +110,17 @@ if __name__ == "__main__":
     ofile = os.path.join(args.odir, 'PC_' + my_chr + '.tsv')
     pca_df.to_csv(ofile, sep = '\t', index = False)
     print("Wrote out " + ofile)
+
+    tmp = [var_exp, [i for i in range(1, args.num_components + 1)], [my_chr] * args.num_components]
+    var_df = pd.DataFrame(tmp).T
+    var_df.rename(columns = {0:'var_explained', 1:'PC', 2:'chrom'}, inplace = True)
+    #var_df
+    ofile = os.path.join(args.odir, 'var_explained.tsv')
+
+    # if file does not exist write header 
+    # https://stackoverflow.com/questions/30991541/pandas-write-csv-append-vs-write
+    if not os.path.isfile(ofile):
+        var_df.to_csv(ofile, header='column_names', sep = '\t', index = False)
+    else: # else it exists so append without writing the header
+        var_df.to_csv(ofile, mode='a', header=False, sep = '\t', index = False)
+
