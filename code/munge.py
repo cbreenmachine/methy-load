@@ -6,13 +6,13 @@ import pandas as pd
 # Need to check what's been processed already ala extract script...
 # Need to pass input file names (or a directory more likely) but let a bash script handle this
 
-
 CHROMOSOMES = ['chr' + str(x) for x in range(1,23)]
 CHROMOSOMES.append('chrX')
 CHROMOSOMES.append('chrY')
 ROOT = '../data/'
 odir = '../data/cov_meth'
-os.makedirs(odir)
+if not os.path.exists(odir):
+    os.makedirs(odir)
 
 def read_and_filter(file_path):
     sample = os.path.basename(file_path).replace('.tsv', '')
@@ -25,7 +25,7 @@ def read_and_filter(file_path):
 
 def split_and_write(df):
     for c in CHROMOSOMES:
-        outfile = os.path.join(odir, c + '_cov_meth.tsv')
+        outfile = os.path.join(odir, c + '.tsv')
         
         try:
             if not os.path.isfile(outfile):

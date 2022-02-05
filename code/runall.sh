@@ -23,7 +23,7 @@ MY_HOME=$(pwd)
 
 # SETUP PATHS
 #POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool05-group0{1..4}/)" # be sure to have trailing slash
-POOL_SUB_DIRS="$(echo ../data/batch02/pool07/)" # be sure to have trailing slash
+POOL_SUB_DIRS="$(echo ../data/batch01/pool02-group01/)" # be sure to have trailing slash
 
 # constants
 FASTQ_PATH="00-fastq/"
@@ -137,10 +137,10 @@ keep_logs = True
 
 
 [mapping]
-memory = 64G
-cores = 8
-merge_cores = 4
-merge_memory = 8G
+#memory = 64G
+#cores = 8
+#merge_cores = 4
+#merge_memory = 8G
 
 [calling]
 
@@ -157,6 +157,7 @@ make_bedmethyl = False" > ${CONF_OUT}
 
 # GEMBS PREPARATION AND CONSOLE OUTPUT
 rm -rf .gemBS # clears some hanging errors
+
 gemBS prepare -c ${CONF_OUT} -t ${META_OUT}
 #echo "gemBS will run the following commands:"
 #gemBS --dry-run run
@@ -164,7 +165,7 @@ gemBS prepare -c ${CONF_OUT} -t ${META_OUT}
 
 
 # MAPPING
-parallel -S ${RUN_SERVERS} --joblog ${DATE_STR}-map.log --nonall --workdir . gemBS map
+parallel -S mastodon-3 --joblog ${DATE_STR}-map.log --nonall --workdir . gemBS map
 # END MAPPING
 
 # Calling

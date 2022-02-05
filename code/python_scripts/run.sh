@@ -1,8 +1,6 @@
 #!/bin/bash
-
-idir="../../data/cov_meth/"
-rm ../../data/prin_comps/var_explained.tsv
+idir="../../data/cov-meth/"
 
 ls ${idir} > INPUT
-parallel --link --workdir . --jobs 6 python compute_PCs.py --ifile ${idir}{1} :::: INPUT
+parallel --link --workdir . --jobs 8 python compute_PCs.py --ifile ${idir}{1} --filter_samples :::: INPUT
 rm INPUT

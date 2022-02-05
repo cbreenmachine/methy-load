@@ -33,3 +33,5 @@ cat CRAWLER_INPUT
 
 parallel --link --workdir . --joblog crawler.log \
     ./extract.sh {1} {2} :::: CRAWLER_INPUT :::: CRAWLER_OUTPUT
+
+rm CRAWLER_INPUT CRAWLER_OUTPUT

@@ -10,9 +10,12 @@ library(viridis)
 
 DATE <- Sys.Date()
 odir <- paste0("./", DATE, "-figs/")
-dir.create(odir)
+dir.create(odir, showWarning = FALSE)
 
 ROOT_DIR <- "../../data/"
+data.odir <- file.path(ROOT_DIR, "array-enzyme-joined/")
+dir.create(data.odir, showWarning = FALSE)
+
 enzyme_files <- list.files(path = ROOT_DIR, pattern =  "[0-9][0-9][0-9].tsv", recursive = TRUE, full = TRUE)
 enzyme_samples <- str_remove(basename(enzyme_files), ".tsv")
 array_files <- list.files(path = ROOT_DIR, pattern =  "[0-9][0-9][0-9].bed", recursive = TRUE, full = TRUE)
@@ -76,12 +79,17 @@ cobble_and_plot <- function(ix){
     overlap.enzyme <- findOverlaps(enzyme.gr, lifted.gr, type = "start")
 
     # Packs information into common dataframe
+    chr <- as.data.frame(seqnames(enzyme.gr[queryHits(overlap.enzyme), ]))$value
+    start <- as.data.frame(ranges(enzyme.gr[queryHits(overlap.enzyme), ]))$start
+
     df <- data.frame(lifted.gr[subjectHits(overlap.enzyme), 'array_methylation'],
-                    enzyme.gr[queryHits(overlap.enzyme), 'wg_methylation']) %>% 
-        dplyr::select(c("array_methylation", "wg_methylation")) %>% 
+                     enzyme.gr[queryHits(overlap.enzyme), 'wg_methylation'],
+                     chr = chr, start = start) %>% 
+        dplyr::select(c("chr", "start", "array_methylation", "wg_methylation")) %>% 
         drop_na()
 
-    
+    fwrite(df, file = file.path(data.odir, paste0(base.name, ".csv")))
+
     # Standsrd (full-range)
     p <- plot_hex_corr(df, base.name)
     wiscR::save_plot(p, paste0(odir, base.name, "_corr.png"))

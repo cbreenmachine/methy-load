@@ -4,7 +4,8 @@ library(argparse)
 library(viridis)
 
 #--> Samplesheet with columns like 'sample', 'machine', 'pool'
-samples.df <- read_csv("../../data/meta/phenos-cleaned.csv") %>% dplyr::mutate(pool_group = paste(pool, group, sep="-"))
+samples.df <- read_csv("../../data/meta/phenos-cleaned.csv") %>% 
+                dplyr::mutate(pool_group = paste(pool, group, sep="-"))
 
 parser <- ArgumentParser(description='Process some integers')
 parser$add_argument('-idir', default = "../../data/prin_comps/", help = "input directory.")
