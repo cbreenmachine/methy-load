@@ -37,7 +37,7 @@ def read_data(file_path):
     return df
 
 def filter_too_many_nulls(df):
-    """Drops positions that are (almost) more than half nulls 
+    """Drops positions that are more than half nulls 
     
     """
     num_na = df.isnull().sum(axis=1)
@@ -47,8 +47,9 @@ def filter_too_many_nulls(df):
     return df[ix]
 
 
-def impute_local_mean(df, group_ix, band_width=20):
-    #TODO
+def impute_local_mean(df, group_ix, ws=50):
+    # Designed with methylated reads and coverage in mind...
+    
     '''imputes local mean by borrowin across groups
     
     Args:
@@ -56,6 +57,13 @@ def impute_local_mean(df, group_ix, band_width=20):
     group_ix = same length as number of columns in df
 
     '''
+    # Either mean then mean, or
+    # Minimum periods := 
+    mp = max(10, int(ws / 10))
+
+    df.rolling(window = ws, min_periods = mp)
+
+
     return(None)
 
 def run_pca(X, num_components = 2, is_incremental=True):

@@ -1,0 +1,3 @@
+Seq	Host	Starttime	JobRuntime	Send	Receive	Exitval	Signal	Command
+2	:	1644284763.248	  6746.048	0	0	0	0	./extract.sh ../data/batch01/pool02-group01/03-calls/128.bcf ../data/batch01/pool02-group01/04-extract/128.tsv
+1	:	1644284763.230	  6755.740	0	0	0	0	./extract.sh ../data/batch01/pool02-group01/03-calls/124.bcf ../data/batch01/pool02-group01/04-extract/124.tsv

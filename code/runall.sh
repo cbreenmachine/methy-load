@@ -17,13 +17,13 @@
 
 #TODO: Make default environment wgbs (after finishes running)
 # CONSTANTS
-RUN_SERVERS="nebula-3,nebula-4,nebula-5"
+RUN_SERVERS="nebula-3,nebula-4,nebula-2"
 DATE_STR=$(date +"%y-%m-%d")
 MY_HOME=$(pwd)
 
 # SETUP PATHS
 #POOL_SUB_DIRS="$(echo ../data/2021-11-03-batch01/pool05-group0{1..4}/)" # be sure to have trailing slash
-POOL_SUB_DIRS="$(echo ../data/batch01/pool02-group01/)" # be sure to have trailing slash
+POOL_SUB_DIRS="$(echo ../data/batch02/pool08/)" # be sure to have trailing slash
 
 # constants
 FASTQ_PATH="00-fastq/"
@@ -159,8 +159,8 @@ make_bedmethyl = False" > ${CONF_OUT}
 rm -rf .gemBS # clears some hanging errors
 
 gemBS prepare -c ${CONF_OUT} -t ${META_OUT}
-#echo "gemBS will run the following commands:"
-#gemBS --dry-run run
+echo "gemBS will run the following commands:"
+gemBS --dry-run run
 # END GEMBS PREP/OUTPUT
 
 
