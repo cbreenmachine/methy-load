@@ -1,15 +1,12 @@
-
-
+#!/bin/bash
 source configuration.txt
 
 
 trim() {
+  #TODO
   echo "Starting trimming process now"
   echo ${CONF_TXT}
 }
-
-
-
 
 prepare() {
   cd ${idir}
@@ -36,6 +33,14 @@ prepare() {
   cd ${home}
 }
 
+remove_tmps() {
+  cd ${idir}
+  cd ${MAP_PATH}
+  echo "Removing temp files"
+  rm *.tmp*
+  cd ${home}
+}
+
 map() {
   # MAPPING
   cd ${idir}
@@ -49,6 +54,42 @@ call(){
   parallel -S ${RUN_SERVERS} --joblog ${date}-call.log --nonall --workdir . gemBS call
   gemBS report
   # END CALLING
+}
+
+
+
+extract() {
+  # Extract csv from one bcf
+  ifile="$1"
+  ofile="$2"
+
+  bcftools query --format '%CHROM\t%POS\t%REF\t[%CG]\t[%CS]\t[%MC8]\n' \
+    --include 'DP>2 && CG="Y" && DP < 50' ${ifile} \
+    | python extract.py --ofile ${ofile} --merge
+}
+
+extract_all() {
+
+  files="$(find ${data_dir} -type f -name "*[0-9][0-9][0-9].bcf")"
+  > CRAWLER_INPUT && > CRAWLER_OUTPUT
+
+  for infile in ${files}; do
+      outfile=$(echo ${infile} | sed -E 's/03-calls/04-extract/' | sed -E 's/bcf/csv/')
+      echo "${infile}" >> CRAWLER_INPUT
+      echo "${outfile}" >> CRAWLER_OUTPUT
+      new_dir=$(dirname "${outfile}")
+      mkdir -vp "${new_dir}"
+  done
+
+  echo ""
+  echo "Will extract methylation on the following files:"
+  cat CRAWLER_INPUT
+
+  export -f extract
+  parallel --link --workdir . --joblog extract.log \
+      ./extract.sh {1} {2} :::: CRAWLER_INPUT :::: CRAWLER_OUTPUT
+
+  rm CRAWLER_INPUT CRAWLER_OUTPUT
 }
 
 # if invoked as a script rather than sourced, call function named on argv via the below;

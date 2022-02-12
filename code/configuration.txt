@@ -1,5 +1,6 @@
 idir="../data/batch02/pool08/" # be sure to have trailing slash
 home=$(pwd)
+data_dir="../data/"
 date=$(date '+%Y-%m-%d')
 
 
@@ -8,6 +9,7 @@ RUN_SERVERS="nebula-3,nebula-4,nebula-2"
 # constants
 FASTQ_PATH="00-fastq/"
 FASTQ_TRIMMED_PATH="01-fastq-trimmed/"
+MAP_PATH="02-mapping/"
 CALLS_PATH="03-calls/"
 EXTRACT_PATH="04-extract/"
 META_OUT="meta.csv"
@@ -26,16 +28,16 @@ extract_dir = 04-extract
 report_dir = 05-report
 
 # Large memory footprint, less so on CPUs
-#memory = 85G
-#cores = 8
+memory = 80G
+cores = 8
 keep_logs = True
 
 
 [mapping]
-#memory = 64G
-#cores = 8
-#merge_cores = 4
-#merge_memory = 8G
+memory = 200G
+cores = 12
+merge_cores = 4
+merge_memory = 8G
 
 [calling]
 

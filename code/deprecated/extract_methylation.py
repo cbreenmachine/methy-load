@@ -3,6 +3,9 @@ import csv
 import sys
 
 def get_methylation_estimate(mc8, strand):
+    '''given the mc8 field from vcf/bcf, tell me the number of methylated
+    and unmethylated counts
+    '''
     methylated = float('NaN')
     unmethylated = float('NaN')
 

@@ -8,7 +8,7 @@ files="$(find ${input_dir} -type f -name "*[0-9][0-9][0-9].bcf")"
 > CRAWLER_OUTPUT
 
 for infile in ${files}; do
-    outfile=$(echo ${infile} | sed -E 's/03-calls/04-extract/' | sed -E 's/bcf/tsv/')
+    outfile=$(echo ${infile} | sed -E 's/03-calls/04-extract/' | sed -E 's/bcf/csv/')
 
     # Get the file size (should be around 250 MB if it ran correctly)
     if [ -f "${outfile}" ]; then
@@ -31,7 +31,7 @@ echo ""
 echo "Will extract methylation on the following files:"
 cat CRAWLER_INPUT
 
-parallel --link --workdir . --joblog crawler.log \
+parallel --link --workdir . --joblog extract.log \
     ./extract.sh {1} {2} :::: CRAWLER_INPUT :::: CRAWLER_OUTPUT
 
 rm CRAWLER_INPUT CRAWLER_OUTPUT

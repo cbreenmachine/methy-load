@@ -15,6 +15,8 @@ def pairwise(iterable):
     return zip(a, b)   
 
 def read_my_line(a):
+    '''coerce to integers
+    '''
     tmp = a.split() # coming in as tab-separated
     tmp[1] = int(tmp[1])
     tmp[5] = int(tmp[5])
@@ -56,5 +58,3 @@ for a, b in pairwise(infile):
             z += 1
     except:
         my_writer.writerow(a.split() )
-
-#print(x,y,z)
