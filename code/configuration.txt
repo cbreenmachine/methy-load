@@ -1,4 +1,4 @@
-idir="../data/batch02/pool08/" # be sure to have trailing slash
+idir="../data/batch01/pool03-group02/" # be sure to have trailing slash
 home=$(pwd)
 data_dir="../data/"
 date=$(date '+%Y-%m-%d')

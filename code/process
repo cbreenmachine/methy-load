@@ -1,7 +1,6 @@
 #!/bin/bash
 source configuration.txt
 
-
 trim() {
   #TODO
   echo "Starting trimming process now"
@@ -86,8 +85,8 @@ extract_all() {
   cat CRAWLER_INPUT
 
   export -f extract
-  parallel --link --workdir . --joblog extract.log \
-      ./extract.sh {1} {2} :::: CRAWLER_INPUT :::: CRAWLER_OUTPUT
+  parallel --link --workdir . --tempdir ./ --joblog extract.log \
+      extract {1} {2} :::: CRAWLER_INPUT :::: CRAWLER_OUTPUT
 
   rm CRAWLER_INPUT CRAWLER_OUTPUT
 }

@@ -1,0 +1,1 @@
+for d in  "$(echo pool0{6..9}-group0{1..4})"; do mkdir ${d}; done

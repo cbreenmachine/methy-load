@@ -1,0 +1,2 @@
+  NumTrimmed NumMapped NumExtracted
+1         40        24           24
