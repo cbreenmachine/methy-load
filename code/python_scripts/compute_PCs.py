@@ -78,13 +78,12 @@ def run_pca(X, num_components = 2, is_incremental=True):
 if __name__ == "__main__":
     # argparsing,...
     parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('--ifile', default = '../../data/cov-meth/chr22.tsv')
+    parser.add_argument('--ifile', default = '../../data/cov-meth/chr22.tsv') #TODO: change to CSV in extract...
     parser.add_argument('--odir', default = '../../data/prin-comps-array-samples/')
     parser.add_argument('--filter_samples', action = 'store_true')
     parser.add_argument('--filter_file', default = '../../data/meta/array-samples.csv')
     args = parser.parse_args()
     
-    print(args)
     
     if not os.path.exists(args.odir):
         os.makedirs(args.odir)
@@ -129,7 +128,6 @@ if __name__ == "__main__":
     tmp = [var_exp, [i for i in range(1, num_components + 1)], [my_chr] * num_components]
     var_df = pd.DataFrame(tmp).T
     var_df.rename(columns = {0:'var_explained', 1:'PC', 2:'chrom'}, inplace = True)
-    #var_df
     ofile = os.path.join(args.odir, 'var-explained-' + my_chr)
 
     #TODO: delete the if/else (deprecated) since we now write to individual (chr) files
@@ -140,3 +138,24 @@ if __name__ == "__main__":
     else: # else it exists so append without writing the header
         var_df.to_csv(ofile, mode='a', header=False, index = False)
 
+
+
+# Sandbox
+Cov = df['coverage']
+
+ix = [100, 101, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 118, 119, 120, 122]
+
+new_values = Cov[ix].mean(axis=1)
+
+Cov[ix].fillna(new_values, axis=1)
+
+
+def impute_with_group_mean(df, cols):
+    new_values = df[cols].mean(axis = 1)
+
+    for i, c in enumerate(df[cols]):
+        df.iloc[:, i] = df.iloc[:, i].fillna(new_values)
+
+
+
+Cov[cols] = Cov[cols].apply(lambda row: row.fillna(row.mean()), axis = 1)

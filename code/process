@@ -50,8 +50,10 @@ map() {
 
 call(){
   # Calling
+  cd ${idir}
   parallel -S ${RUN_SERVERS} --joblog ${date}-call.log --nonall --workdir . gemBS call
   gemBS report
+  cd ${home}
   # END CALLING
 }
 

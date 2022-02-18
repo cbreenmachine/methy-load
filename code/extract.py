@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Two main functions--get_methylation_estimate
 import csv
 import sys
 import itertools
