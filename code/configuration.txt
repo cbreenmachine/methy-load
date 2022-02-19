@@ -1,4 +1,4 @@
-idir="../data/batch01/pool03-group04/" # be sure to have trailing slash
+idir="../data/batch01/pool04-group02/" # be sure to have trailing slash
 home=$(pwd)
 data_dir="../data/"
 date=$(date '+%Y-%m-%d')
@@ -7,6 +7,7 @@ date=$(date '+%Y-%m-%d')
 RUN_SERVERS="nebula-3,nebula-4,nebula-2"
 
 # constants
+# directories must end in /!!!!
 FASTQ_PATH="00-fastq/"
 FASTQ_TRIMMED_PATH="01-fastq-trimmed/"
 MAP_PATH="02-mapping/"
