@@ -15,7 +15,7 @@ parser$add_argument("--pheno_file", default= "../../data/meta/phenos-cleaned.csv
 args <- parser$parse_args()
 
 # Setup output directory, will save called regions, figures?
-odir <- paste0("result-", args$chr)
+odir <- paste0(args$chr)
 dir.create(odir, showWarning = FALSE)
 
 # Read in data

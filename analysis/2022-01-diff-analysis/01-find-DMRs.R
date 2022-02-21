@@ -13,7 +13,7 @@ parser <- ArgumentParser()
 parser$add_argument("--chr", default= "chr6", help='Chromosome to run DSS on')
 parser$add_argument("--covariates", default= "Gran,CD8T,CD4T,NK,Bcell,bmi,age,sex")
 parser$add_argument("--num_pcs", default= 2, help= 'Number of principal components to include in analysis')
-parser$add_argument("--smoothing_window", default= 100, help= 'Width of smoothing window')
+parser$add_argument("--smoothing", default= 100, help= 'Width of smoothing window')
 # Flags for methods
 parser$add_argument("--DSS", action = "store_true", help = "Which method to use")
 parser$add_argument("--DMRseq", action="store_true", help = "Which method to use")
@@ -24,11 +24,16 @@ parser$add_argument("--pc_dir", default= "../../data/prin-comps-array-samples/",
 args <- parser$parse_args()
 
 covariates <- as.vector(unlist(str_split(args$covariates, ",")))
+if (args$num_pcs > 0){
+    covariates <- c(covariates, paste0("PC", 1:args$num_pcs))
+}
 dss.formula <- as.formula(paste(c("~cohort", covariates), collapse = "+"))
 
 
 idir <- file.path("./", args$chr)
-odir <- paste0(args$chr, "/", "smooth-", as.character(ars$smoothing_window), "-PCs-")
+odir <- paste0(args$chr, "/", "smooth-", as.character(args$smoothing), "-PCs-", args$num_pcs, "/")
+dir.create(odir, showWarnings = FALSE)
+
 pc.df <- read_csv(file.path(args$pc_dir,  paste0(args$chr, ".csv")), col_types = cols())
 ss.df <- read_csv(args$pheno_file, col_types = cols())
 
@@ -42,8 +47,11 @@ filt.df <- ss.df %>%
             dplyr::filter(sample %in% valid.samples) 
 
 drop.cols <- as.character(setdiff(colnames(M), valid.samples))[-1] # dont remove pos
-M[, (drop.cols):=NULL]
-Cov[, (drop.cols):=NULL]
+
+if (length(drop.cols) > 0){
+    M[, (drop.cols):=NULL]
+    Cov[, (drop.cols):=NULL]
+}
 
 #--> Handle missing values?
 #filt.df$pack_years[is.na(filt.df$pack_years)] <- 0
@@ -62,7 +70,7 @@ all( filt.df$sample == colnames(bs) )
 
 # Derive some parameters
 smooth = TRUE
-if (args$smoothing_window == 0){
+if (args$smoothing == 0){
     smooth = FALSE
 }
 
@@ -70,7 +78,7 @@ if (args$DSS){
 
     dss.time <- system.time(
         dml.fit <- DMLfit.multiFactor(bs, design = filt.df, smoothing = smooth, 
-        smoothing.span = args$smoothing_window, formula = dss.formula)
+        smoothing.span = args$smoothing, formula = dss.formula)
     )
     test.var <- colnames(dml.fit$X)[2]
     print(test.var)
@@ -91,11 +99,11 @@ if (args$DMRseq){
                         testCovariate = "cohort", 
                         minNumRegion = 5, 
                         adjustCovariate = covariates, 
-                        bpSpan = args$smoothing_window, minInSpan = 10)
+                        bpSpan = args$smoothing, minInSpan = 10)
     )
 }
 
-rm(M, Cov, bs, valid.samples, pc.df, drop.cols, loci.idx, sample.idx)
+#rm(M, Cov, bs, valid.samples, pc.df, drop.cols, loci.idx, sample.idx)
 
 # Save the models
 outname <- file.path(odir, "models.RData")

@@ -36,15 +36,15 @@ colors <- pal_nejm("default")(NCOL)
 # Parser
 parser <- ArgumentParser()
 parser$add_argument("--chr", default= "chr6", help='Chromosome to generate figures on')
+parser$add_argument("--experiment", default= "/smooth-250-PCs-10/", help='Chromosome to generate figures on')
 parser$add_argument("--regions_file", default= "./regions-of-interest.csv", help='CSV specifying other regions to plot')
-parser$add_argument("--array_dmps_file", default = "pub-2018Madrid-DMPs.lifted.csv")
 parser$add_argument("--phenotypes_file", default = "../../data/meta/phenos-cleaned.csv")
 parser$add_argument("--odir", default = "/figs/")
 args <- parser$parse_args()
 
 # Lazy way to recode variables
 CHR <- args$chr
-idir <- paste0("./result-", CHR, "/")
+idir <- file.path(paste0("./", CHR, "/"), args$experiment)
 odir <- paste0(file.path(idir, "figs/"))
 dir.create(odir, showWarnings=FALSE)
 
@@ -59,11 +59,11 @@ tx.hs <- tx.hs[ix, ]
 
 # Read in data
 roi.df <- read_csv(args$regions_file, show_col_types = FALSE)
-Meth <- fread(file.path(idir, "methylation.csv"))
+Meth <- fread(file.path(dirname(idir), "methylation.csv"))
 load(file.path(idir, "models.RData"))
 
 # Call DMRs--allow user to input parameters from terminal
-dmrs <- callDMR(test.cohort, p.threshold=0.01, dis.merge = 2500, pct.sig = 0.5, minCG = 3)
+dmrs <- callDMR(test.cohort, p.threshold=0.01, dis.merge = 2500, pct.sig = 0.5, minCG = 5)
 
 #--> Split into two groups
 load.samples <- filt.df %>% filter(cohort == "AD") %>% pull(sample) %>% as.character()
@@ -118,7 +118,7 @@ create_output_name <- function(odir, nCG, chr, start, pad){
     # nCG := number of CpGs in DMR
     # chr := chromosome 
     # start := starting position of DMR
-    bn <- paste0(as.character(nCG), "-", chr, "-start-", as.character(start),"-pad-",as.character(pad), ".pdf")
+    bn <- paste0(as.character(nCG), "-", chr, "-start-", as.character(start),"-pad-",as.character(pad), ".png")
     return(file.path(odir, bn))
 }
 
@@ -128,7 +128,7 @@ plot_and_save <- function(start, stop, tracks.list, ofile){
     # stop: stopping position
     # tracks.list: list of tracks to plot, produced beforehand
     # ofile: output
-    pdf(ofile)
+    png(ofile)
     plotTracks(tracks.list, from = start, to = stop, background.title = colors[6], 
                 collapseTranscripts = "meta", showID = TRUE, transcriptAnnotation = "symbol")
     dev.off()
@@ -208,12 +208,4 @@ comb.df <- cbind(dmrs.df, ann.df)
 
 write_csv(comb.df, file = file.path(idir, "closest-genes.csv"))
 
-# TEST
-biomTrack <- BiomartGeneRegionTrack(genome = GEN, chromosome = CHR, 
-                    name = "ENSEMBL", start = a, end = b,
-                    fontsize = FS, fill = colors[7])
-
-
-png("test.png")
-plotTracks(biomTrack, collapseTranscripts = "meta", showID = TRUE, transcriptAnnotation = "symbol")
-dev.off()
+dbDisconnect()
