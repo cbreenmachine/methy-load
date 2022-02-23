@@ -6,13 +6,14 @@ suppressPackageStartupMessages({
     library(argparse)
 }) 
 
-
+# Parse parse --------------------------------------------------------------------------
 parser <- ArgumentParser()
 parser$add_argument("--ifile", default= "chr6/smooth-250-PCs-0/models.RData", help='Path to input models file')
 args <- parser$parse_args()
 
 
 # Helper functions ---------------------------------------------------------------------
+#TODO: check these in Rrey
 chain.file <- "hg19ToHg38.over.chain"
 .check_chain <- function(){
     if (! file.exists(chain.file)){
