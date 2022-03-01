@@ -1,4 +1,0 @@
-Seq	Host	Starttime	JobRuntime	Send	Receive	Exitval	Signal	Command
-1	nebula-2	1645119929.130	     4.814	0	0	1	0	gemBS call 
-1	nebula-3	1645119929.135	    55.187	0	0	1	0	gemBS call 
-1	nebula-4	1645119929.130	    21.368	0	0	1	0	gemBS call 

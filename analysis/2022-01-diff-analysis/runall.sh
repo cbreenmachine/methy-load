@@ -19,6 +19,6 @@ do
     echo ${exp} >> EXP
     Rscript 02-make-track-plots.R --chr "${chr}" --experiment "${exp}"
 done
-
+rm CHR EXP
 
 # parallel Rscript 03-count-genes.R --idir {} ::: ./chr6 ./chr18
