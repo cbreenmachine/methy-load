@@ -1,0 +1,160 @@
+Preparing gemBS, should only take a second
+gemBS will run the following commands:
+gemBS map --barcode 153 --no-md5
+gemBS map --md5 --barcode 153
+gemBS map --barcode 149 --no-md5
+gemBS map --md5 --barcode 149
+gemBS map --barcode 152 --no-md5
+gemBS map --md5 --barcode 152
+gemBS map --barcode 151 --no-md5
+gemBS map --md5 --barcode 151
+gemBS map --barcode 150 --no-md5
+gemBS map --md5 --barcode 150
+gemBS report --mapping 
+gemBS call --barcode 151 --pool chr18
+gemBS call --barcode 151 --pool chr9
+gemBS call --barcode 151 --pool Pool@1
+gemBS call --barcode 151 --pool chr2
+gemBS call --barcode 151 --pool chr13
+gemBS call --barcode 151 --pool chr14
+gemBS call --barcode 151 --pool chr22
+gemBS call --barcode 151 --pool chr16
+gemBS call --barcode 151 --pool chr7
+gemBS call --barcode 151 --pool chr17
+gemBS call --barcode 151 --pool chr10
+gemBS call --barcode 151 --pool chr3
+gemBS call --barcode 151 --pool chr15
+gemBS call --barcode 151 --pool chr11
+gemBS call --barcode 151 --pool chr8
+gemBS call --barcode 151 --pool chr6
+gemBS call --barcode 151 --pool chr4
+gemBS call --barcode 151 --pool chr19
+gemBS call --barcode 151 --pool chr20
+gemBS call --barcode 151 --pool chr21
+gemBS call --barcode 151 --pool chr5
+gemBS call --barcode 151 --pool chrY
+gemBS call --barcode 151 --pool chr12
+gemBS call --barcode 151 --pool chr1
+gemBS call --barcode 151 --pool chrX
+gemBS call --merge --barcode 151 --no-md5 --no-index
+gemBS call --md5 --barcode 151
+gemBS call --index --barcode 151
+gemBS call --barcode 150 --pool chr18
+gemBS call --barcode 150 --pool chr9
+gemBS call --barcode 150 --pool Pool@1
+gemBS call --barcode 150 --pool chr2
+gemBS call --barcode 150 --pool chr13
+gemBS call --barcode 150 --pool chr14
+gemBS call --barcode 150 --pool chr22
+gemBS call --barcode 150 --pool chr16
+gemBS call --barcode 150 --pool chr7
+gemBS call --barcode 150 --pool chr17
+gemBS call --barcode 150 --pool chr10
+gemBS call --barcode 150 --pool chr3
+gemBS call --barcode 150 --pool chr15
+gemBS call --barcode 150 --pool chr11
+gemBS call --barcode 150 --pool chr8
+gemBS call --barcode 150 --pool chr6
+gemBS call --barcode 150 --pool chr4
+gemBS call --barcode 150 --pool chr19
+gemBS call --barcode 150 --pool chr20
+gemBS call --barcode 150 --pool chr21
+gemBS call --barcode 150 --pool chr5
+gemBS call --barcode 150 --pool chrY
+gemBS call --barcode 150 --pool chr12
+gemBS call --barcode 150 --pool chr1
+gemBS call --barcode 150 --pool chrX
+gemBS call --merge --barcode 150 --no-md5 --no-index
+gemBS call --md5 --barcode 150
+gemBS call --index --barcode 150
+gemBS call --barcode 152 --pool chr18
+gemBS call --barcode 152 --pool chr9
+gemBS call --barcode 152 --pool Pool@1
+gemBS call --barcode 152 --pool chr2
+gemBS call --barcode 152 --pool chr13
+gemBS call --barcode 152 --pool chr14
+gemBS call --barcode 152 --pool chr22
+gemBS call --barcode 152 --pool chr16
+gemBS call --barcode 152 --pool chr7
+gemBS call --barcode 152 --pool chr17
+gemBS call --barcode 152 --pool chr10
+gemBS call --barcode 152 --pool chr3
+gemBS call --barcode 152 --pool chr15
+gemBS call --barcode 152 --pool chr11
+gemBS call --barcode 152 --pool chr8
+gemBS call --barcode 152 --pool chr6
+gemBS call --barcode 152 --pool chr4
+gemBS call --barcode 152 --pool chr19
+gemBS call --barcode 152 --pool chr20
+gemBS call --barcode 152 --pool chr21
+gemBS call --barcode 152 --pool chr5
+gemBS call --barcode 152 --pool chrY
+gemBS call --barcode 152 --pool chr12
+gemBS call --barcode 152 --pool chr1
+gemBS call --barcode 152 --pool chrX
+gemBS call --merge --barcode 152 --no-md5 --no-index
+gemBS call --md5 --barcode 152
+gemBS call --index --barcode 152
+gemBS call --barcode 153 --pool chr18
+gemBS call --barcode 153 --pool chr9
+gemBS call --barcode 153 --pool Pool@1
+gemBS call --barcode 153 --pool chr2
+gemBS call --barcode 153 --pool chr13
+gemBS call --barcode 153 --pool chr14
+gemBS call --barcode 153 --pool chr22
+gemBS call --barcode 153 --pool chr16
+gemBS call --barcode 153 --pool chr7
+gemBS call --barcode 153 --pool chr17
+gemBS call --barcode 153 --pool chr10
+gemBS call --barcode 153 --pool chr3
+gemBS call --barcode 153 --pool chr15
+gemBS call --barcode 153 --pool chr11
+gemBS call --barcode 153 --pool chr8
+gemBS call --barcode 153 --pool chr6
+gemBS call --barcode 153 --pool chr4
+gemBS call --barcode 153 --pool chr19
+gemBS call --barcode 153 --pool chr20
+gemBS call --barcode 153 --pool chr21
+gemBS call --barcode 153 --pool chr5
+gemBS call --barcode 153 --pool chrY
+gemBS call --barcode 153 --pool chr12
+gemBS call --barcode 153 --pool chr1
+gemBS call --barcode 153 --pool chrX
+gemBS call --merge --barcode 153 --no-md5 --no-index
+gemBS call --md5 --barcode 153
+gemBS call --index --barcode 153
+gemBS call --barcode 149 --pool chr18
+gemBS call --barcode 149 --pool chr9
+gemBS call --barcode 149 --pool Pool@1
+gemBS call --barcode 149 --pool chr2
+gemBS call --barcode 149 --pool chr13
+gemBS call --barcode 149 --pool chr14
+gemBS call --barcode 149 --pool chr22
+gemBS call --barcode 149 --pool chr16
+gemBS call --barcode 149 --pool chr7
+gemBS call --barcode 149 --pool chr17
+gemBS call --barcode 149 --pool chr10
+gemBS call --barcode 149 --pool chr3
+gemBS call --barcode 149 --pool chr15
+gemBS call --barcode 149 --pool chr11
+gemBS call --barcode 149 --pool chr8
+gemBS call --barcode 149 --pool chr6
+gemBS call --barcode 149 --pool chr4
+gemBS call --barcode 149 --pool chr19
+gemBS call --barcode 149 --pool chr20
+gemBS call --barcode 149 --pool chr21
+gemBS call --barcode 149 --pool chr5
+gemBS call --barcode 149 --pool chrY
+gemBS call --barcode 149 --pool chr12
+gemBS call --barcode 149 --pool chr1
+gemBS call --barcode 149 --pool chrX
+gemBS call --merge --barcode 149 --no-md5 --no-index
+gemBS call --md5 --barcode 149
+gemBS call --index --barcode 149
+gemBS report --calling 
+gemBS extract  --cpg --barcode 150
+gemBS extract  --cpg --barcode 149
+gemBS extract  --cpg --barcode 151
+gemBS extract  --cpg --barcode 152
+gemBS extract  --cpg --barcode 153
+gemBS report 

@@ -18,7 +18,9 @@ suppressPackageStartupMessages({
     library(TxDb.Hsapiens.UCSC.hg38.knownGene)
 }) 
 
+
 # CONSTANTS
+ALPHA <- 0.01
 GEN <- "hg38"
 FS <- 16 # fontsize
 N <- 5
@@ -29,16 +31,12 @@ colors <- pal_nejm("default")(NCOL)
 
 # Parser
 parser <- ArgumentParser()
-parser$add_argument("--chr", default= "chr18", help='Chromosome to generate figures on')
-parser$add_argument("--experiment", default= "/smooth-250-PCs-10/", help='Chromosome to generate figures on')
+parser$add_argument("--chr", default= "chr6", help='Chromosome to generate figures on')
+parser$add_argument("--experiment", default= "/smooth-150-PCs-2/", help='Chromosome to generate figures on')
 parser$add_argument("--regions_file", default= "./regions-of-interest.csv", help='CSV specifying other regions to plot')
 parser$add_argument("--phenotypes_file", default = "../../data/meta/phenos-cleaned.csv")
 parser$add_argument("--odir", default = "/figs/")
 args <- parser$parse_args()
-
-
-sink(file = paste0(str_remove_all(args$experiment, "/"), ".log"), 
-    type = c("output", "message"),  append = FALSE, split = TRUE)
 
 
 # Lazy way to recode variables
@@ -63,7 +61,7 @@ Meth <- fread(file.path(dirname(idir), "methylation.csv"))
 load(file.path(idir, "models.RData"))
 
 # Call DMRs--allow user to input parameters from terminal
-dmrs <- callDMR(test.cohort, p.threshold=0.01, dis.merge = 2500, pct.sig = 0.5, minCG = 5)
+dmrs <- callDMR(test.cohort, p.threshold=ALPHA, dis.merge = 2500, pct.sig = 0.5, minCG = 5)
 N <- min(N, nrow(dmrs)) # reset N
 #--> Split into two groups
 load.samples <- filt.df %>% filter(cohort == "AD") %>% pull(sample) %>% as.character()
@@ -100,7 +98,7 @@ Meth.2 <- prepare_granges(Meth)
 group <- filt.df$cohort[match(colnames(Meth)[-1], filt.df$sample)]
 
 # "Simple" tracks without too many parameters
-dmrs.track <- AnnotationTrack(GRanges(dmrs), genome = GEN, name = "DMRs (DSS)", 
+dmrs.track <- AnnotationTrack(GRanges(dmrs), genome = GEN, name = "DMRs", 
                             fontsize = FS, fill = colors[3], col = "white")
 ideogram.track <- IdeogramTrack(genome = GEN, chromosome = CHR, fontsize = FS - 2)
 axis.track <- GenomeAxisTrack()
@@ -145,7 +143,8 @@ get_gene_track <- function(start, stop, pad){
     return(make_gene_track(a, b))
 }
 
-plot_by_ix <- function(ix, pad=c(1000, 5000, 1000), top=top.list, bottom=bottom.list){
+plot_by_ix <- function(ix, pad=c(1000, 5000, 10000), top=top.list, bottom=bottom.list){
+    # For lapply, wrapper for make_gene_track and save...
     a <- dmrs$start[ix]
     b <- dmrs$end[ix]
     nCG <- dmrs$nCG[ix]
@@ -156,13 +155,12 @@ plot_by_ix <- function(ix, pad=c(1000, 5000, 1000), top=top.list, bottom=bottom.
     for (p in pad){
         ofile <- create_output_name(odir, nCG, CHR, a, p)
         plot_and_save(a-p, b+p, all.tracks, ofile)
-        #plot_and_save(a-p, b+p, gene.track, ofile)
     }
 }
 
 if (exists("dmrs")){
     if (nrow(dmrs) > 0){
-        lapply(1:N, plot_by_ix)
+        lapply(1:nrow(dmrs), plot_by_ix)
     }
 } 
 
@@ -196,9 +194,21 @@ format_locus <- function(seq, a, b){
     return(out)
 }
 
+tally.input <- data.frame(chr = test.cohort$chr, pos = test.cohort$pos, pvals = test.cohort$pvals, stringsAs = FALSE)
+tally_sig_CpGs <- function(a, b){
+    tally.input %>% 
+        filter(pos >= a) %>% filter(pos <= b) %>%
+        filter(pvals <= ALPHA) %>% nrow() %>% return()
+}
+
+tally <-  Vectorize(tally_sig_CpGs)
+dmrs.2 <- dmrs %>% mutate(nSigCG = tally( start, end))
+
+
+
 window <- 10000
 # Nearest gene
-dmrs.gr <- GRanges(dmrs[1:N, ]) 
+dmrs.gr <- GRanges(dmrs) 
 overlap <- findOverlaps(dmrs.gr + window, unstrand(tx.hs))
 
 tx.hs.shrunk <- tx.hs[subjectHits(overlap), ]
@@ -231,5 +241,17 @@ if (nrow(comb.df) == 0){
 
 
 # Need to add in rows with blanks... (if there is a DMR that doesn't have annotation)
-
 write_csv(comb.df, file = file.path(idir, "closest-genes.csv"))
+
+# Join the tally with the others
+tmp <- dmrs.2 %>% 
+    mutate(dmr.locus = format_locus(chr, start, end)) %>%
+    full_join(comb.df, by = "dmr.locus") %>%
+    dplyr::select(c(dmr.locus, length, nCG, nSigCG, gene.name)) %>%
+    unique() %>% group_by(dmr.locus) %>% 
+    summarize(dmr.locus, length, nCG, nSigCG, geneNames = paste0(gene.name, collapse = "; ")) %>% 
+    rename(dmrLocus = dmr.locus) %>%
+    unique() %>% arrange(-nCG)
+tmp
+
+write_csv(tmp, file = file.path(idir, "called-dmrs.csv"))

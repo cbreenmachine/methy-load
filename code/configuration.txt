@@ -1,4 +1,4 @@
-idir="../data/batch01/pool04-group02/" # be sure to have trailing slash
+idir="../data/batch01/pool03-group02/" # be sure to have trailing slash
 home=$(pwd)
 data_dir="../data/"
 date=$(date '+%Y-%m-%d')
@@ -44,6 +44,7 @@ merge_memory = 8G
 
 right_trim = 0,0
 left_trim = 0,0
+remove_individual_bcfs = True
 
 [extract]
 make_snps = False

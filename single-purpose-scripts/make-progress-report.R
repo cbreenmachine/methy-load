@@ -69,23 +69,19 @@ df <- data.frame(path = dirs) %>%
             nTrimmed = unlist(lapply(path, count_trimmed)),
             nMapped = unlist(lapply(path, count_mapped)),
             nCalled = unlist(lapply(path, count_called))) %>%
-        select(-path)
+        select(-path) %>%
+        arrange(poolgroup)
 
 
 ofile <- paste0(Sys.Date(), "-done.csv")
 write_csv(df, file = ofile)
 
 
-
-
-
-
-
-df <- read_tsv("../data/meta/ADRC-samplesheet-cleaned.tsv")
+df <- read_tsv("../data/meta/ADRC-samplesheet-cleaned.tsv", show_col_types = FALSE)
 extracted <- list.files("../data/", pattern = "^[0-9][0-9][0-9].tsv", recursive = TRUE) 
 todo <- as.character(sort(setdiff(df$ALISCH_ID, str_remove(basename(extracted), ".tsv"))))
 
-exp.df <- read_table("../data/meta/experimental-design.tsv") %>% filter(sample %in% todo)
+exp.df <- read_table("../data/meta/experimental-design.tsv", show_col_types = FALSE) %>% filter(sample %in% todo)
 tmp <- exp.df %>%
     group_by(pool, group) %>%
     summarize(n.left = n())

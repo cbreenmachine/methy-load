@@ -9,8 +9,8 @@ suppressPackageStartupMessages({
 
 parser <- ArgumentParser()
 parser$add_argument("--idir", default= "chr6/", help='Path to input models file')
-parser$add_argument("--num_pcs", default= "0,2,4", help='Path to input models file')
-parser$add_argument("--smoothing_ws", default= "50,100,150,200", help='Path to input models file')
+parser$add_argument("--num_pcs", default= "2", help='Path to input models file')
+parser$add_argument("--smoothing_ws", default= "100,150,200", help='Path to input models file')
 parser$add_argument("--regions_file", default= "./regions-of-interest.csv", help='CSV specifying other regions to plot')
 args <- parser$parse_args()
 

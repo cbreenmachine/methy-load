@@ -8,7 +8,7 @@ suppressPackageStartupMessages({
 
 # Parse parse --------------------------------------------------------------------------
 parser <- ArgumentParser()
-parser$add_argument("--ifile", default= "chr6/smooth-250-PCs-0/models.RData", help='Path to input models file')
+parser$add_argument("--ifile", default= "chr6/smooth-150-PCs-2/models.RData", help='Path to input models file')
 args <- parser$parse_args()
 
 
@@ -52,6 +52,12 @@ DMPs.array <- fread("../../../adrc-array/data/DMPs.csv") %>%
             filter(chr == DMPs.whole$chr[1]) %>%
             mutate(adj.p.array = -log10(P.Value), p.array = P.Value) %>%
             lift_to_hg38()
+DMPs.sig <- fread("../../data/pub-2018Madrid-DMPs.csv") %>%
+                filter(chrom == DMPs.whole$chr[1]) %>% rename(chr = "chrom") %>%
+                lift_to_hg38() 
+all(DMPs.sig$start %in% DMPs.array$start)
+
+DMPs.array$isSig = ifelse(DMPs.array$start %in% DMPs.sig$start, "isSig2018", "notSig2018")
 
 # Not neccessary since lifting figured out
 print("Num positions in intersection")
@@ -63,7 +69,8 @@ length(setdiff(DMPs.array$pos, DMPs.whole$pos))
 join.df <- left_join(DMPs.whole, DMPs.array, by = c("chr", "pos"))
 # Creaate variable telling us whether a location is in array loci or not
 join.df <- join.df %>% 
-            mutate(ArrayLocus = ifelse(is.na(adj.p.array), "NotInArray", "InArray")) %>%
+            mutate(ArrayLocus = ifelse(is.na(adj.p.array), "NotInArray", 
+                                ifelse(pos %in% DMPs.sig$pos, "InArrayAndSig", "InArray"))) %>%
             dplyr::select(-adj.P.Val)
 roi.df <- read_csv("regions-of-interest.csv") %>% filter(chr %in% join.df$chr)
 
@@ -73,7 +80,7 @@ plot_me <- function(joined.df, roi.df, ix=1, buffer=1000){
         filter(pos > roi.df$start[ix] - buffer & pos < roi.df$end[ix] + buffer) %>%
         pivot_longer(cols = starts_with("adj.p"), names_to = "Tech", values_to = "adj.p") %>%
         ggplot(aes(x = pos, y = adj.p, color = ArrayLocus)) +
-        geom_point(size = 4, alpha = 0.8) +
+        geom_point(size = 4, alpha = 0.6) +
         xlab("Genomic position") +
         ylab("-log10(p) from DSS / whole-genome") +
         ggtitle(roi.df$name[ix]) +
