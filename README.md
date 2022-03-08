@@ -5,31 +5,7 @@ This repository contains the scripts used to align and process whole-genome bisu
 
 # Organization
 
-Data is coming in pools of 20 and groups of of five samples. The structure of the data directory reflects how we received the data. As of November 4, 2021, we've recieved 20 samples (four pools of five).
-
-This is also tracked in the
-
-
-```
-wgbs-load
-|--data
-  |--2021-01-01-batch1
-  |  |--pool01
-  |  |  |--00-fastq
-  |  |  |  |--sample01_R1.fq
-  |  |  |  |--sample01_R2.fq
-  |  |  |--01-fastq-trimmed
-  |  |  |  |--sample01_R1-trimmed.fq
-  |  |  |  |--sample01_R2-trimmed.fq
-  |  |  |--02-mapped-reads
-  |  |  |--03-called
-  |  |--pool02
-  |  |--00-fastq-trimmed
-  |  |   |--sample01_R1_trimmed.fq
-  |  |   |--sample02_R1_trimmed.fq
-```
-
-There are three "tiers" of data that we run throught the pipeline. The first, located in `./data/dummy/toy-data/` has two samples, each with forward and reverse reads. In reality, `dummy1_R[1-2].fq (dummy2_R[1-2].fq)` is just the first (last) 250,000 reads from sample 110. These files are used to debug the `code/runall.sh` pipeline. Trimming takes a few seconds, and mapping/calling are also quick. The second dataset, located in `./data/dummy/pool1/` more faithfully replicates the structure/naming of the actual data. A copy of sample 110's raw reads is located in this folder. To run this pipeline start to finish on one sample take about one day (24 hours), although running five or so samples should take aout the same amount of time due to parallelization. Currently, the bottleneck is trimming. `cutadapt` and `trim_galore` have 
+Link incoming...
 
 # Environment
 
